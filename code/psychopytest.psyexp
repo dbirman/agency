@@ -26,13 +26,34 @@
       <StaticComponent name="ISI">
         <Param name="code" val="" valType="code" updates="None"/>
         <Param name="name" val="ISI" valType="code" updates="None"/>
-        <Param name="stopVal" val="0.5" valType="code" updates="constant"/>
+        <Param name="stopVal" val="0.1" valType="code" updates="constant"/>
         <Param name="durationEstim" val="" valType="code" updates="None"/>
         <Param name="startEstim" val="" valType="code" updates="None"/>
         <Param name="startType" val="time (s)" valType="str" updates="None"/>
         <Param name="stopType" val="duration (s)" valType="str" updates="None"/>
         <Param name="startVal" val="0.0" valType="code" updates="None"/>
       </StaticComponent>
+      <PolygonComponent name="polygon">
+        <Param name="opacity" val="1" valType="code" updates="constant"/>
+        <Param name="fillColorSpace" val="rgb" valType="str" updates="constant"/>
+        <Param name="name" val="polygon" valType="code" updates="None"/>
+        <Param name="fillColor" val="$[1,1,1]" valType="str" updates="constant"/>
+        <Param name="stopVal" val="1.0" valType="code" updates="constant"/>
+        <Param name="durationEstim" val="" valType="code" updates="None"/>
+        <Param name="pos" val="[0, 0]" valType="code" updates="constant"/>
+        <Param name="interpolate" val="linear" valType="str" updates="constant"/>
+        <Param name="lineWidth" val="1" valType="code" updates="constant"/>
+        <Param name="startEstim" val="" valType="code" updates="None"/>
+        <Param name="units" val="from exp settings" valType="str" updates="None"/>
+        <Param name="startType" val="time (s)" valType="str" updates="None"/>
+        <Param name="lineColor" val="$[1,1,1]" valType="str" updates="constant"/>
+        <Param name="ori" val="0" valType="code" updates="constant"/>
+        <Param name="stopType" val="duration (s)" valType="str" updates="None"/>
+        <Param name="startVal" val=".1" valType="code" updates="None"/>
+        <Param name="lineColorSpace" val="rgb" valType="str" updates="constant"/>
+        <Param name="nVertices" val="4" valType="int" updates="constant"/>
+        <Param name="size" val="[0.5, 0.5]" valType="code" updates="constant"/>
+      </PolygonComponent>
     </Routine>
   </Routines>
   <Flow>
