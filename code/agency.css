@@ -1,0 +1,120 @@
+body {
+	padding: 0;
+	margin: 0;
+	font-family: Palatino Linotype, Bookman Antiqua, Palatino, serif;
+	font-size: 16px;
+	line-height: 20px;
+}
+
+.slide {
+	width: 95%;
+	height: 95%;
+	display: none;
+	position: absolute;
+	margin: 0;
+	margin-left: 0.5%;
+	padding: 1% 2% 1% 2%;
+}
+
+input, select, button {font-family: Georgia, serif; font-size: 14px;}
+
+button {
+	border: 1px solid #999;
+	border-top: 1px solid #e0e0e0;
+	border-left: 1px solid #e0e0e0;
+	margin: 10px;
+	padding-left: 5px;
+	padding-right: 5px;
+	height: 29px;
+	min-width: 70px;
+}
+button:active {
+	border-left: 1px solid #c9c9c9;
+	border-top: 1px solid #c9c9c9;
+	background: none;
+	background-color: #c9c9c9;
+}
+
+button[disabled] {
+	border: 1px solid #999;
+	border-top: 1px solid #e0e0e0;
+	border-left: 1px solid #e0e0e0;
+	cursor: not-allowed;
+}
+
+#logo-text {
+  font-weight: bold;
+}
+
+.centerbox {
+	width:500px;
+  position:absolute;
+  top:50%;
+  left:50%;
+  margin-right:-50%;
+  transform: translate(-50%,-50%);
+}
+
+.bigcenterbox {
+  width:1000px;
+  position:absolute;
+  top:50%;
+  left:50%;
+  margin-right:-50%;
+  transform: translate(-50%,-50%);
+}
+
+/* This is the cohenIntro text CSS, DO NOT CHANGE!! */
+.frontblock-text {
+  width:650;
+  text-align:justify;
+  margin: 0 auto;
+  margin-bottom: 1em;
+}
+
+/* This is for the change of instructions trials */
+.bolded {
+  width:500px;
+  font-weight:bold;
+  font-size:150%;
+}
+
+.multi-parent {
+	position:relative;
+	text-align:center;
+}
+
+#legal {
+  margin: 0 auto;
+  margin-top: 1.5em;
+  font-size: 0.8em;
+}
+
+#character {
+	color:black;
+	font-family: Arial, sans-serif;
+	margin: 0 auto;
+	text-align: center;
+	text-transform: uppercase;
+	position:absolute;
+	top:50%;
+	left:50%;
+	z-index: 1;
+	opacity: .65;
+	transform: translate(-50%,-50%);
+}
+
+#dispImg {
+	position:absolute;
+	top:50%;
+	left:50%;
+	height:512px;
+	width:512px;
+	z-index: 0;
+	transform: translate(-50%,-50%);
+}
+
+#miniImg {
+	height:256px;
+	width:256px;
+}
