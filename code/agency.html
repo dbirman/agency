@@ -60,8 +60,8 @@
 		<div class="slide multi-parent" id="trial_instructions">
 			<div class="centerbox">
 				<p class="bolded" id="inst_warning">STOP! THE INSTRUCTIONS MAY HAVE CHANGED: PLEASE READ CAREFULLY!!</p>
-				<p class='block-text' id="inst_catch">On the next trial, pay attention to the images in the background. Ignore the letters and digits. At the end of the trial, report which natural scene image you saw in the sequence of masks.</p>
-				<p class="block-text" id="inst">On the next trial, pay attention to the sequence of letters and digits. At the end of the trial, report how many numbers you see in the sequence. For example if you see A, B, 5, C, 1, you would report 2, because you saw two numbers.</p>
+				<p class='block-text' id="inst_reaper">On the next trial, pay attention to the images in the background. Ignore the letters and digits. At the end of the trial, report which natural scene image you saw in the sequence of masks.</p>
+				<p class="block-text" id="inst">On the next trial, use the arrow keys to move the box into the circle. Do your best to succeed, your time is limited.</p>
 				<button type="button" onclick="this.blur(); experiment.ready()">I'm Ready</button>
 			</div>
 
@@ -69,56 +69,14 @@
 
 		<div class="slide" id="frame">
 			<p id="character">{{}}</p>
-			<img id="dispImg" src='stim/Masks700/start.jpg'>
+			<img id="goalImg" src="">
+			<img id="dispImg" src="">
 		</div>
 
-		<div class="slide multi-parent" id="response_regular">
+		<div class="slide multi-parent" id="response">
 			<div class="centerbox">
-				<p class="block-text" id="resp-reg">Press the button corresponding to the number of digits you saw in the sequence of characters.</p><br>
-				<button type="button rbutton" onclick="this.blur(); trial.resp0()">0</button>
-				<button type="button rbutton" onclick="this.blur(); trial.resp1()">1</button>
-				<button type="button rbutton" onclick="this.blur(); trial.resp2()">2</button>
-				<button type="button rbutton" onclick="this.blur(); trial.resp3()">3</button>
-				<button type="button rbutton" onclick="this.blur(); trial.resp4()">4</button>
-			</div>
-
-		</div>
-
-		<div class="slide multi-parent" id="response_catch">
-			<div class="centerbox">
-				<p class="block-text" id="1">
-					Did you notice anything different on that trial?
-				</p>
-				<p class="block-text" id="2">
-					Did you notice something different about the background sequence of images?
-				</p>
-				<p class="block-text" id="3">
-					Did you notice that a different type of image was presented in the background that was unique in some particular way?
-				</p>
-				<p class="block-text" id="4">
-					Did you see an actual photograph of a scene in that sequence?
-				</p>
-				<p class="block-text" id="5">
-					If we told you that there was a photograph in that sequence, could you tell us what it was a photograph of?
-				</p>
-				<button type="button rbutton" onclick="this.blur(); trial.respYes()">Yes</button>
-				<button type="button rbutton" onclick="this.blur(); trial.respNo()">No</button>
-			</div>
-
-		</div>
-
-		<div class="slide multi-parent" id="response_catch2">
-			<div class="bigcenterbox">
-				<p class="block-text" id="6">
-					One of these 6 images was actually presented on that trial, can you pick out which photograph was shown? If you aren't sure, but you know whether there was an animal or vehicle present, pick an image at random among those pictures.
-				</p>
-				<img id="miniImg" onclick="trial.a1()" src="stim/Exp1B_Targets/a1.jpg">
-				<img id="miniImg" onclick="trial.a2()" src="stim/Exp1B_Targets/a2.jpg">
-				<img id="miniImg" onclick="trial.a3()" src="stim/Exp1B_Targets/a3.jpg">
-				<p></p>
-				<img id="miniImg" onclick="trial.u1()" src="stim/Exp1B_Targets/u1.jpg">
-				<img id="miniImg" onclick="trial.u2()" src="stim/Exp1B_Targets/u2.jpg">
-				<img id="miniImg" onclick="trial.u3()" src="stim/Exp1B_Targets/u3.jpg">
+				<p class="block-text" id="resp-success">Nice job!</p>
+				<p class="block-text" id="resp-success">Good try, you can get it next round!</p>
 			</div>
 
 		</div>

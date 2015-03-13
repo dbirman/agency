@@ -100,28 +100,6 @@ function randomElement(array) {
 	return array[randomInteger(array.length)];
 }
 
-function buildTrialDisplay(digits,length) {
-	var chars = ['A','B','C','D','G','H','K','M','O','P','Q','R','T','U','V','W','X','Y'],
-		numbers = ['1','2','4','5'];
-
-	var display = [];
-	for (i = 0; i < length-digits-2; i++) {
-		display[i] = randomElement(chars);
-	}
-	var used = []; // This code makes sure we never add the same digit more than once
-	for (;i < length-2;i++) {
-		next = randomElement(numbers);
-		while (used.indexOf(next) > -1) {
-			next = randomElement(numbers);
-		}
-		used.push(next);
-		display.push(next);
-	}
-	fullMinusTwo = shuffleArray(display);
-	fullMinusTwo.push(randomElement(chars)); fullMinusTwo.push(randomElement(chars));
-	return fullMinusTwo
-}
-
 $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', exitHandler);
 
 function exitHandler()
