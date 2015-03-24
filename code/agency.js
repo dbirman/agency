@@ -374,7 +374,7 @@ function drawHelper() {
 	if (diffTime > 50) {diffTime = 50;}
 
 	flippedTime.push(time-started)
-	if ((time-started) > (4000)) {
+	if ((time-started) > (10000)) {
 		window.cancelAnimationFrame(frameID);
 		trial.resp();
 		return
@@ -383,11 +383,25 @@ function drawHelper() {
 	// check and move my rect if neccessary
 	checkMove(diffTime,.5);
 
+	// check that things aren't off-screen
+	checkOffscreen();
+
 	// draw stuff
 	render();
 	
 	// next draw
 	frameID = window.requestAnimationFrame(drawHelper);
+}
+
+function checkOffscreen() {
+	if (goalX < rectSize/2-canvas.width/2) {goalX = rectSize/2-canvas.width/2;}
+	if (goalY < rectSize/2-canvas.height/2) {goalY = rectSize/2-canvas.height/2;}
+	if (goalX > canvas.width/2-rectSize/2) {goalX = canvas.width/2-rectSize/2;}
+	if (goalY > canvas.height/2-rectSize/2) {goalY = canvas.height/2-rectSize/2;}
+	if (myX < rectSize/2-canvas.width/2) {myX = rectSize/2-canvas.width/2;}
+	if (myY < rectSize/2-canvas.height/2) {myY = rectSize/2-canvas.height/2;}
+	if (myX > canvas.width/2-rectSize/2) {myX = canvas.width/2-rectSize/2;}
+	if (myY > canvas.height/2-rectSize/2) {myY = canvas.height/2-rectSize/2;}
 }
 
 function checkMove(distance,mult) {
