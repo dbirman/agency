@@ -1,4 +1,6 @@
 
+//General helper functions
+
 function showSlide(id) {
 	$(".slide").hide();
 	$("#"+id).show();
@@ -50,6 +52,8 @@ Array.range= function(a, b, step){
 
 var imageSrcList = new Array();
 
+//Image helpers
+
 function preload(sources, callback) {
     if(sources.length) {
         var preloaderDiv = $('<div style="display: none;"></div>').prependTo(document.body);
@@ -69,13 +73,10 @@ function preload(sources, callback) {
 }
 
 function preloadSetup() {
-	for (i = 0; i < 300; i++) {
-		imageSrcList.push("stim/Masks700/ma" + (i+1) + ".jpg");
-	}
-	for (i = 0; i < 6; i++) {
-		imageSrcList.push("stim/Exp1B_Targets/" + images[i] + ".jpg");
-	}
+	//no preloading
 }
+
+// Array logistic helpers
 
 /**
  * Randomize array element order in-place.
@@ -100,6 +101,8 @@ function randomElement(array) {
 	return array[randomInteger(array.length)];
 }
 
+// Full screen helpers
+
 $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', exitHandler);
 
 function exitHandler()
@@ -114,6 +117,8 @@ function exitHandler()
 	    }
 	}	
 }
+
+// Time helpers
 
 function now() {
 	return (new Date()).getTime();
@@ -155,6 +160,59 @@ function setGeo(data) {
 
 })()
 
+// Keypress helpers
+var k_u = false, k_l = false, k_d = false, k_r = false;
+
+document.onkeydown = function(event) {
+	event = event || window.event;
+	switch (event.keyCode) {
+		case 37: // left
+			k_l = true;
+			event.preventDefault();
+			break;
+		case 38: // up
+			k_u = true;
+			event.preventDefault();
+			break;
+		case 39: // right
+			k_r = true;
+			event.preventDefault();
+			break;
+		case 40: // down
+			k_d = true;
+			event.preventDefault();
+			break;
+	}
+}
+
+document.onkeyup = function(event) {
+	event = event || window.event;
+	switch (event.keyCode) {
+		case 37: // left
+			k_l = false;
+			event.preventDefault();
+			break;
+		case 38: // up
+			k_u = false;
+			event.preventDefault();
+			break;
+		case 39: // right
+			k_r = false;
+			event.preventDefault();
+			break;
+		case 40: // down
+			k_d = false;
+			event.preventDefault();
+			break;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+// WEBPAGE LAUNCH /////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+
 if (fingerprint.screenHeight <= 700) {
 	showSlide("screensmall");
 } else {
@@ -162,7 +220,6 @@ if (fingerprint.screenHeight <= 700) {
 	if (curHeight > 1000) {
 		curHeight = 1000;
 	}
-	document.getElementById("character").style.fontSize = curHeight + 'px';
 	$("#dispImg").width(curHeight);
 	$("#dispImg").height(curHeight);
 	// document.getElementById("character").style.fontSize = 700 + 'px';
@@ -170,10 +227,6 @@ if (fingerprint.screenHeight <= 700) {
 	// $("#dispImg").height(700);
 
 	var numLoadedImages = 0;
-	function onLoadedOne() {
-	  numLoadedImages++;
-	  $("#num-loaded").text(numLoadedImages); 
-	}
 
 	// define a function that will get called once
 	// all images have been successfully loaded
@@ -182,42 +235,22 @@ if (fingerprint.screenHeight <= 700) {
 	}
 
 	var curTrial = 0;
-	var postCatchOrder = randomElement([0,1])
-
-	var numberOfDigits = [0,1,2,3,4],
-	    trialLengths = [12,13,14,15,16,17],
-	    catchTrials = [0,1],
-	    images = ['a1','a2','a3','u1','u2','u3'],
-	    maskOpts = Array.range(1,300,1);
-
-
-	var iscatch, respcatch, digits, trialLength, catchImg, trialDisplay, insts, prevImg;
 
 	watchingFull = true;
 
 	showSlide("loading");
 	preloadSetup();
 	$("#num-total").text(imageSrcList.length);
-	// preload(imageSrcList,onLoadedOne,onLoadedAll);
 	preload(imageSrcList,onLoadedAll);
 
 	var allData = {};
-
-	allData.fingerprint = fingerprint;
-	allData.znumDigits = numberOfDigits;
-	allData.ztrialLens = trialLengths;
-	allData.zcatchOpts = catchTrials;
-	allData.zimageOpts = images;
-	allData.zmaskOpts = maskOpts;
-	allData.t_train = [];
-	allData.t_critical = [];
-	allData.t_backg = [];
-	allData.t_stream = [];
-	allData.flipData = [];
-	allData.trialInfo = [];
-	allData.charstream = [];
-
+	// to add a single obj
+	// allData.obj = obj;
+	// per trial:
+	// allData.trialNum = [];
 }
+
+// EXPERIMENT
 
 var experiment = {
 
@@ -225,7 +258,7 @@ var experiment = {
 		watchingFull = false;
 		exitFullscreen();
 		showSlide("finished");
-		if (opener.turk.previewMode) {
+		if (opener && opener.turk.previewMode) {
 			$("#finishText").hide();
 			$("#finishTextPrev").show();
 		} else {
@@ -243,49 +276,23 @@ var experiment = {
 		// 6,7,8,9,10 -> 
 		if (curTrial < 5) {
 			// regular trial
-			iscatch = 0; respcatch = 0; insts = 0;
-		} else if (curTrial == 5) {
-			iscatch = 1; respcatch = 1; insts = 0;
-			// catch trial
-		} else if (curTrial < 11) {
-			if (postCatchOrder == 1) {
-				// background task first
-				iscatch = 1; respcatch = 1; insts = 1;
-			} else {
-				// RSVP task first
-				iscatch = 1; respcatch = 0; insts = 0;
-			}
-		} else if (curTrial < 16) {
-			if (postCatchOrder == 1) {
-				// now do the RSVP task
-				iscatch = 1; respcatch = 0; insts = 0;
-			} else {
-				// now background task
-				iscatch = 1; respcatch = 1; insts = 1;
-			}
-
 		} else {
 			experiment.end();
 			return;
 		}
-		// Setup ALL TRIAL infos:
-		digits = randomElement(numberOfDigits);
-		trialLength = randomElement(trialLengths);
-		catchImg = randomElement(images);
-		while (curTrial > 0 && catchImg == prevImg) {
-			catchImg = randomElement(images);
-		}
-		prevImg = catchImg;
-		trialDisplay = buildTrialDisplay(digits,trialLength);
+
+		// Setup information for all trials:
+		var inst = 1;
+
 		showSlide("trial_instructions")
-		if (insts==1) {
+		if (inst==1) {
 			$("#inst").hide();
-			$("#inst_catch").show();
+			$("#inst_reaper").show();
 		} else {
 			$("#inst").show();
-			$("#inst_catch").hide();
+			$("#inst_reaper").hide();
 		}
-		if (curTrial==6 || curTrial==11) {
+		if (curTrial==3) {
 			$("#inst_warning").show();
 		} else {
 			$("#inst_warning").hide();
@@ -347,275 +354,119 @@ var experiment = {
 
 var frameID,
     started;
-
-var drawTime;
-var lastMask = 0;
-var time;
-var flippedChar = [];
-var flippedMask = [];
 var flippedTime = [];
-var frameImg = $("#dispImg");
 var dead = false;
 
-var maskInt = 100;
+var cx = $(window).width() / 2;
+var cy = $(window).height() / 2;
 
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+
+var lastTick = 0;
 
 function drawHelper() {
 	time = now();
+	//get the elapsed time since the last frame
+	diffTime = time - lastTick;
+	lastTick = time;
+	//adjust the time to 33 fps maximum
+	if (diffTime > 50) {diffTime = 50;}
+
 	flippedTime.push(time-started)
-	if ((time-started) > (100*trialDisplay.length)) {
+	if ((time-started) > (4000)) {
 		window.cancelAnimationFrame(frameID);
 		trial.resp();
 		return
 	}
-	// figure out what character to show, 100 ms per character
-	charPos = Math.floor((now() - started)/100);
-	cChar = trialDisplay[charPos];
-	$("#character").text(cChar);
-	flippedChar.push(cChar);		
-	// figure out whether the mask needs to change
-	if (iscatch==1 && (time-started) > (100*trialDisplay.length)-(maskInt*2) && (time-started) < (100*trialDisplay.length)-maskInt) {
-		imgFile = "stim/Exp1B_Targets/" + catchImg + ".jpg";
-	} else if ((time - lastMask) > maskInt) {
-		imgFile = "stim/Masks700/ma" + randomElement(maskOpts) + ".jpg";
-		lastMask = time;
-	}
-	flippedMask.push(imgFile);
-	frameImg.attr("src",imgFile);
-	// frameImg.update();
-	// frameImg.src = imgFile;
+
+	// check and move my rect if neccessary
+	checkMove(diffTime,.5);
+
+	// draw stuff
+	render();
+	
+	// next draw
 	frameID = window.requestAnimationFrame(drawHelper);
 }
 
-var respQue = 1;
-var regularRT;
-var catch1RT,
-	catch2RT,
-	catch3RT,
-	catch4RT,
-	catch5RT,
-	catch6RT;
-var regResp;
-var catchResp1 = [];
-var catchResp2;
+function checkMove(distance,mult) {
+	leftMove = 0; topMove = 0;
+	if (k_l) {leftMove = leftMove - distance*mult}
+	if (k_r) {leftMove = leftMove + distance*mult}
+	if (k_u) {topMove = topMove - distance*mult}
+	if (k_d) {topMove = topMove + distance*mult}
+	myX += leftMove;
+	myY += topMove;
+}
+
+// Rendering functions
+
+var goalX, goalY;
+var myX, myY;
+var rectSize = 50;
+
+function render() {
+	ctx.clearRect(0,0,canvas.width,canvas.height);
+	renderGoal();
+	renderMy();
+}
+
+function renderGoal() {
+	drawRect(goalX,goalY,rectSize,rectSize,false);
+}
+
+function renderMy() {
+	drawRect(myX,myY,rectSize,rectSize,true);
+}
+
+function drawRect(cx,cy,xs,ys,cflag) {
+	if (cflag) {
+		ctx.fillStyle = "#FF0000"
+	} else {
+		ctx.fillStyle = "#0000FF"
+	}
+	ctx.fillRect(canvas.width/2+cx-xs/2,canvas.height/2+cy-ys/2,xs,ys);
+}
 
 var trial  = {
-	// digits = list of digits to display on masks
-	// iscatch = whether or not to display a random image
 
 	pushData: function(leftFull) {
-		//Trial info
-		var trialData = {};
-		if (respcatch==1) {
-			trialData['catchResp1'] = catchResp1[0];
-			trialData['catchResp2'] = catchResp1[1];
-			trialData['catchResp3'] = catchResp1[2];
-			trialData['catchResp4'] = catchResp1[3];
-			trialData['catchResp5'] = catchResp1[4];
-			trialData['catchImageResp'] = catchResp2;
-			trialData['catchRT1'] = catch1RT;
-			trialData['catchRT2'] = catch2RT;
-			trialData['catchRT3'] = catch3RT;
-			trialData['catchRT4'] = catch4RT;
-			trialData['catchRT5'] = catch5RT;
-			trialData['catchRT6'] = catch6RT;
-		} else {
-			trialData['regRT'] = regularRT;
-			trialData['regResp'] = regResp;
-		}
-		trialData['trialNum'] = curTrial;
-		if (curTrial < 5) {
-			allData.t_train.push(trialData);
-		} else if (curTrial == 5) {
-			allData.t_critical.push(trialData);
-		} else if (respcatch == 1) {
-			// trial > 5 and respcatch==1
-			allData.t_backg.push(trialData);
-		} else {
-			allData.t_stream.push(trialData);
-		}
-		// Always add thesee
-		var trialInfo = {};
-		trialInfo['catchTrial'] = iscatch;
-		trialInfo['backgtask'] = respcatch;
-		trialInfo['catchImage'] = catchImg;
-		trialInfo['digits'] = digits;
-		trialInfo['streamLength'] = trialLength;
-		trialInfo['trialNum'] = curTrial;
-		trialInfo['leftFull'] = leftFull;
-		allData.trialInfo.push(trialInfo);
-		// Character stream
-		var charStream = {};
-		charStream.stream = trialDisplay;
-		allData.charstream.push(charStream);
-		// Flip data
-		var flipData = {};
-		flipData['flipTime'] = flippedTime; // LIST
-		flipData['flipChar'] = flippedChar; // LIST
-		flipData['flipMask'] = flippedMask; // LIST
-		allData.flipData.push(flipData);
 
-		// Now we reset all the variables
-		if (curTrial > 4) {
-			respQue = 4;
-		} else {
-			respQue = 1;
-		}
-		regularRT = 0;
-		catch1RT = 0; catch2RT = 0; catch3RT = 0; catch4RT = 0;
-		catch5RT = 0; catch6RT = 0;
-		regResp = 0;
-		catchResp1 = [];
-		flippedChar = [];
-		flippedMask = [];
-		flippedTime = [];
-		catchResp2 = '';
+	},
+
+	center: function() {
+		goalX = 150; goalY = 150;
+		myX = 0; myY = 0;
 	},
 
 	draw: function(started) {
-		 frameID = window.requestAnimationFrame(drawHelper);
+		trial.center();
+		frameID = window.requestAnimationFrame(drawHelper);
 	},
 
 	run: function() {
+		// Double check that we're in full-screen
 		if (dead) {
 	        showSlide("full-exit");
 		} else {
-			showSlide("frame")
-			$("#character").text("");		
+			//remove the cursor
 			$(document.body).css("cursor","none")
-			frameImg.attr("src","stim/Masks700/start.jpg");
-			setTimeout(trial.run2,2000);
+			//tell the trial to start in 1s
+			setTimeout(trial.run2,1000);
 		}
 	},
 
 	run2: function() {
 		showSlide("frame")
 		started = now();
+		//start the animation sequence
 		trial.draw();
 	},
 
 	resp: function() {
+		//trial is over, put the cursor back up
 		$(document.body).css("cursor","auto")
-		if (iscatch==1 && respcatch==1) {
-			showSlide("response_catch");
-			$(".block-text").hide();
-			switch (respQue) {
-				case 1:
-					catch1RT = now();
-					$("#1").show();
-					break;
-				case 2:
-					catch2RT = now();
-					$("#2").show();
-					break;
-				case 3:
-					catch3RT = now();
-					$("#3").show();
-					break;
-				case 4:
-					catch4RT = now();
-					$("#4").show();
-					break;
-				case 5:
-					catch5RT = now();
-					$("#5").show();
-					break;
-				case 6:
-					catch6RT = now();
-					showSlide("response_catch2");
-					$("#6").show();
-					break;
-			}
-		} else {
-			regularRT = now();
-			showSlide("response_regular");
-			$("#resp-reg").show();
-		}
+		showSlide("trial")
 	},
-
-	respYes: function() {
-		trial.eitherResp();
-		respQue = 6;
-		catchResp1.push("Y")
-		trial.resp();
-	},
-
-	respNo: function() {
-		trial.eitherResp();
-		catchResp1.push("N")
-		respQue = respQue +1;
-		trial.resp();
-	},
-
-	eitherResp: function() {
-		switch (respQue) {
-			case 1:
-				catch1RT = now() - catch1RT;
-			case 2:
-				catch2RT = now() - catch2RT;
-			case 3:
-				catch3RT = now() - catch3RT;
-			case 4:
-				catch4RT = now() - catch4RT;
-			case 5:
-				catch5RT = now() - catch5RT;
-		}
-	},
-
-	a1: function() {
-		catch6RT = now() - catch6RT;
-		catchResp2 = 'a1';
-		experiment.setupNext();
-	},
-	a2: function() {
-		catch6RT = now() - catch6RT;
-		catchResp2 = 'a2';
-		experiment.setupNext();
-	},
-	a3: function() {
-		catch6RT = now() - catch6RT;
-		catchResp2 = 'a3';
-		experiment.setupNext();
-	},
-	u1: function() {
-		catch6RT = now() - catch6RT;
-		catchResp2 = 'u1';
-		experiment.setupNext();
-	},
-	u2: function() {
-		catch6RT = now() - catch6RT;
-		catchResp2 = 'u2';
-		experiment.setupNext();
-	},
-	u3: function() {
-		catch6RT = now() - catch6RT;
-		catchResp2 = 'u3';
-		experiment.setupNext();
-	},
-
-	resp0: function() {
-		regResp = 0;
-		regularRT = now() - regularRT;
-		experiment.setupNext();
-	},
-	resp1: function() {
-		regResp = 1;
-		regularRT = now() - regularRT;
-		experiment.setupNext();
-	},
-	resp2: function() {
-		regResp = 2;
-		regularRT = now() - regularRT;
-		experiment.setupNext();
-	},
-	resp3: function() {
-		regResp = 3;
-		regularRT = now() - regularRT;
-		experiment.setupNext();
-	},
-	resp4: function() {
-		regResp = 4;
-		regularRT = now() - regularRT;
-		experiment.setupNext();
-	}
 }

@@ -16,8 +16,15 @@ body {
 	padding: 1% 2% 1% 2%;
 }
 
+#canvas {
+	position:absolute;
+	top:50%;
+	left:50%;
+	transform:translate(-50%,-50%);
+}
+
 .centerbox {
-	width:500px;
+  width:500px;
   position:absolute;
   top:50%;
   left:50%;
@@ -43,6 +50,15 @@ body {
 .multi-parent {
 	position:relative;
 	text-align:center;
+}
+
+#frame {
+	height:700px;
+	width:700px;
+	position:absolute;
+	top:50%;
+	left:50%;
+	transform:translate(-50%,-50%);
 }
 
 #legal {
