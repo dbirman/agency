@@ -252,7 +252,7 @@ if (fingerprint.screenHeight <= 700) {
 
 // EXPERIMENT
 
-var gravity = true, friction = true;
+var gravity = true, friction = true, jitter = true;
 
 var experiment = {
 
@@ -437,9 +437,15 @@ function checkOffscreen() {
 	if (myY > canvas.height/2-rectSize/2) {myY = canvas.height/2-rectSize/2;}
 }
 
+var jitterStr = 10;
+
 function myMove(elapsedTime) {
 	myX += lVeloc*elapsedTime;
 	myY += tVeloc*elapsedTime;
+	if (jitter) {
+		myX = myX + (Math.random() - .5) * elapsedTime / jitterStr;
+		myY = myY + (Math.random() - .5) * elapsedTime / jitterStr;
+	}
 }
 
 function checkMove(elapsedTime,mult) {
