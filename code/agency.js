@@ -376,12 +376,19 @@ function drawHelper() {
 	flippedTime.push(time-started)
 	if ((time-started) > (10000)) {
 		window.cancelAnimationFrame(frameID);
-		trial.resp();
+		trial.resp(false);
 		return
 	}
 
 	// check and move my rect if neccessary
 	checkMove(diffTime,.5);
+
+	// check if we made it to the goal state
+	if (checkGoal()) {
+		window.cancelAnimationFrame(frameID);
+		trial.resp(true);
+		return
+	}
 
 	// check that things aren't off-screen
 	checkOffscreen();
@@ -412,6 +419,11 @@ function checkMove(distance,mult) {
 	if (k_d) {topMove = topMove + distance*mult}
 	myX += leftMove;
 	myY += topMove;
+}
+
+function checkGoal() {
+	return (myX > goalX - rectSize/2 && myX < goalX + rectSize + rectSize/2) &&
+		(myY > goalY - rectSize/2 && myY < goalY + rectSize + rectSize/2);
 }
 
 // Rendering functions
@@ -478,9 +490,17 @@ var trial  = {
 		trial.draw();
 	},
 
-	resp: function() {
+	resp: function(success) {
 		//trial is over, put the cursor back up
-		$(document.body).css("cursor","auto")
-		showSlide("trial")
+		$(document.body).css("cursor","auto");
+		showSlide("response");
+		if (success) {
+			$("#resp-success").show();
+			$("#resp-fail").hide();
+		} else {
+			$("#resp-success").hide();
+			$("#resp-fail").show();
+		}
+		setTimeout(function() {showSlide("trial")},2000);
 	},
 }
