@@ -252,6 +252,8 @@ if (fingerprint.screenHeight <= 700) {
 
 // EXPERIMENT
 
+var gravity = true, friction = true;
+
 var experiment = {
 
 	end: function() {
@@ -374,14 +376,14 @@ function drawHelper() {
 	if (diffTime > 50) {diffTime = 50;}
 
 	flippedTime.push(time-started)
-	if ((time-started) > (10000)) {
+	if ((time-started) > (20000)) {
 		window.cancelAnimationFrame(frameID);
 		trial.resp(false);
 		return
 	}
 
 	// check and move my rect if neccessary
-	checkMove(diffTime,.5);
+	checkMove(diffTime,.0001);
 
 	// check if we made it to the goal state
 	if (checkGoal()) {
@@ -389,6 +391,12 @@ function drawHelper() {
 		trial.resp(true);
 		return
 	}
+
+	// forces
+	fundamentalForces(diffTime);
+
+	// move
+	myMove(diffTime);
 
 	// check that things aren't off-screen
 	checkOffscreen();
@@ -398,6 +406,24 @@ function drawHelper() {
 	
 	// next draw
 	frameID = window.requestAnimationFrame(drawHelper);
+}
+
+var gAccel = .00005, lVeloc = 0.0, tVeloc = 0.0;
+
+var fricVal = .00001;
+
+function fundamentalForces(elapsedTime) {
+	if (gravity) {
+		if (tVeloc < .1) {
+			tVeloc = tVeloc + gAccel*elapsedTime;
+		}
+	}
+	if (friction) {
+		if (lVeloc > 0) {lVeloc -= fricVal*elapsedTime; if(lVeloc<0) {lVeloc=0;}}
+		if (lVeloc < 0) {lVeloc += fricVal*elapsedTime; if(lVeloc>0) {lVeloc=0;}}
+		if (tVeloc > 0) {tVeloc -= fricVal*elapsedTime; if(tVeloc<0) {tVeloc=0;}}
+		if (tVeloc < 0) {tVeloc += fricVal*elapsedTime; if(tVeloc>0) {tVeloc=0;}}
+	}
 }
 
 function checkOffscreen() {
@@ -411,14 +437,19 @@ function checkOffscreen() {
 	if (myY > canvas.height/2-rectSize/2) {myY = canvas.height/2-rectSize/2;}
 }
 
-function checkMove(distance,mult) {
+function myMove(elapsedTime) {
+	myX += lVeloc*elapsedTime;
+	myY += tVeloc*elapsedTime;
+}
+
+function checkMove(elapsedTime,mult) {
 	leftMove = 0; topMove = 0;
-	if (k_l) {leftMove = leftMove - distance*mult}
-	if (k_r) {leftMove = leftMove + distance*mult}
-	if (k_u) {topMove = topMove - distance*mult}
-	if (k_d) {topMove = topMove + distance*mult}
-	myX += leftMove;
-	myY += topMove;
+	if (k_l) {leftMove = leftMove - elapsedTime*mult}
+	if (k_r) {leftMove = leftMove + elapsedTime*mult}
+	if (k_u) {topMove = topMove - elapsedTime*mult}
+	if (k_d) {topMove = topMove + elapsedTime*mult}
+	lVeloc += leftMove;
+	tVeloc += topMove;
 }
 
 function checkGoal() {
@@ -464,6 +495,7 @@ var trial  = {
 	center: function() {
 		goalX = 150; goalY = 150;
 		myX = 0; myY = 0;
+		lVeloc = 0.0; tVeloc = 0.0;
 	},
 
 	draw: function(started) {
