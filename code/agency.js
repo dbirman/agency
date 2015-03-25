@@ -231,7 +231,7 @@ if (fingerprint.screenHeight <= 700) {
 	// define a function that will get called once
 	// all images have been successfully loaded
 	function onLoadedAll() {
-	  showSlide("pre-instructions");
+	  showSlide("demographics");
 	}
 
 	var curTrial = 0;
@@ -252,9 +252,22 @@ if (fingerprint.screenHeight <= 700) {
 
 // EXPERIMENT
 
-var gravity = true, friction = true, jitter = true;
+// exp vars
+var inst;
+// game vars
+var gravity = false, friction = false, jitter = false, randControl = false, flipCons = false;
+var startPos;
+// game settings
+var gAccel = .00005, fricVal = .00001, jitterStr = 10, randSwitch = 1000;
+
+// trial by trial settings
+var gList = [false, false, false, false, true],
+	fList = [false, true, true, true, true],
+	jList = [false, false, false, true, true],
+	rList = [false, false, true, false, true];
 
 var experiment = {
+
 
 	end: function() {
 		watchingFull = false;
@@ -272,19 +285,20 @@ var experiment = {
 
 	next: function() {
 		curTrial = curTrial + 1;
-		// Start off by setting up our trial structure:
-		// 1,2,3,4 -> Regular trials
-		// 5 -> Catch trial
-		// 6,7,8,9,10 -> 
-		if (curTrial < 5) {
+		// Setup the next trial based on what trial number we are on (you can also use 
+		// arrays and then pick out of the arrays using curTrial)
+		if (curTrial <= 5) {
 			// regular trial
+			gravity = gList[curTrial-1];
+			friction = fList[curTrial-1];
+			jitter = jList[curTrial-1];
+			randControl = rList[curTrial-1];
+			inst == 0;
+			startPos = randomElement([0,1,2,3,4,5,6,7])
 		} else {
 			experiment.end();
 			return;
 		}
-
-		// Setup information for all trials:
-		var inst = 1;
 
 		showSlide("trial_instructions")
 		if (inst==1) {
@@ -335,10 +349,22 @@ var experiment = {
 			alert("Please enter your age and sex. These demographic information are important for our study.");
 			return
 		}
+		//age info
 		allData.demo = {};
 		allData.demo.age = document.getElementById('agebox').value;
-		allData.demo.sex = document.getElementById('sexbox').value;
-		showSlide("instructions");
+		//sex
+		sVal = document.getElementById('sexbox').value;
+		sVal = sVal.toLowerCase();
+		// auto-parsing
+		if (sVal == 'male') {sVal = 'm'}
+		if (sVal == 'female') {sVal = 'f'}
+		if (sVal == 'other') {sVal = 'o'}
+		if (sVal != 'm' && sVal != 'f' && sVal != 'o') {
+			alert("Please enter a valid sex: male/female/other (or m/f/o) designation.");
+			return
+		}
+		allData.demo.sex = sVal;
+		showSlide("gofullscreen");
 	},
 
 	run: function() {
@@ -365,7 +391,7 @@ var cy = $(window).height() / 2;
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
-var lastTick = 0;
+var lastTick = 0; var lVeloc = 0.0, tVeloc = 0.0;
 
 function drawHelper() {
 	time = now();
@@ -388,7 +414,9 @@ function drawHelper() {
 	// check if we made it to the goal state
 	if (checkGoal()) {
 		window.cancelAnimationFrame(frameID);
-		trial.resp(true);
+		myColor = 'green';
+		render();
+		setTimeout(function() {trial.resp(true)},1000);
 		return
 	}
 
@@ -408,10 +436,6 @@ function drawHelper() {
 	frameID = window.requestAnimationFrame(drawHelper);
 }
 
-var gAccel = .00005, lVeloc = 0.0, tVeloc = 0.0;
-
-var fricVal = .00001;
-
 function fundamentalForces(elapsedTime) {
 	if (gravity) {
 		if (tVeloc < .1) {
@@ -419,10 +443,10 @@ function fundamentalForces(elapsedTime) {
 		}
 	}
 	if (friction) {
-		if (lVeloc > 0) {lVeloc -= fricVal*elapsedTime; if(lVeloc<0) {lVeloc=0;}}
-		if (lVeloc < 0) {lVeloc += fricVal*elapsedTime; if(lVeloc>0) {lVeloc=0;}}
-		if (tVeloc > 0) {tVeloc -= fricVal*elapsedTime; if(tVeloc<0) {tVeloc=0;}}
-		if (tVeloc < 0) {tVeloc += fricVal*elapsedTime; if(tVeloc>0) {tVeloc=0;}}
+		if (lVeloc > 0) {lVeloc -= (Math.abs(lVeloc*.001*elapsedTime) + fricVal*elapsedTime); if(lVeloc<0) {lVeloc=0;}}
+		if (lVeloc < 0) {lVeloc += (Math.abs(lVeloc*.001*elapsedTime) + fricVal*elapsedTime); if(lVeloc>0) {lVeloc=0;}}
+		if (tVeloc > 0) {tVeloc -= (Math.abs(tVeloc*.001*elapsedTime) + fricVal*elapsedTime); if(tVeloc<0) {tVeloc=0;}}
+		if (tVeloc < 0) {tVeloc += (Math.abs(tVeloc*.001*elapsedTime) + fricVal*elapsedTime); if(tVeloc>0) {tVeloc=0;}}
 	}
 }
 
@@ -437,8 +461,6 @@ function checkOffscreen() {
 	if (myY > canvas.height/2-rectSize/2) {myY = canvas.height/2-rectSize/2;}
 }
 
-var jitterStr = 10;
-
 function myMove(elapsedTime) {
 	myX += lVeloc*elapsedTime;
 	myY += tVeloc*elapsedTime;
@@ -448,7 +470,19 @@ function myMove(elapsedTime) {
 	}
 }
 
+var lastRandSwitch = now();
+
 function checkMove(elapsedTime,mult) {
+	if (randControl) {
+		if ((now() - lastRandSwitch) > randSwitch) {
+			lastRandSwitch = now();
+			k_l = randomElement([true, false, false]);
+			k_d = randomElement([true, false, false]);
+			k_u = randomElement([true, false, false]);
+			k_r = randomElement([true, false, false]);
+		}
+	}
+
 	leftMove = 0; topMove = 0;
 	if (k_l) {leftMove = leftMove - elapsedTime*mult}
 	if (k_r) {leftMove = leftMove + elapsedTime*mult}
@@ -459,14 +493,15 @@ function checkMove(elapsedTime,mult) {
 }
 
 function checkGoal() {
-	return (myX > goalX - rectSize/2 && myX < goalX + rectSize + rectSize/2) &&
-		(myY > goalY - rectSize/2 && myY < goalY + rectSize + rectSize/2);
+	return (myX > goalX - rectSize && myX < goalX + rectSize) &&
+		(myY > goalY - rectSize && myY < goalY + rectSize);
 }
 
 // Rendering functions
 
 var goalX, goalY;
 var myX, myY;
+var myColor = 'red';
 var rectSize = 50;
 
 function render() {
@@ -476,20 +511,36 @@ function render() {
 }
 
 function renderGoal() {
-	drawRect(goalX,goalY,rectSize,rectSize,false);
+	drawRect(goalX,goalY,rectSize,rectSize,'blue');
 }
 
 function renderMy() {
-	drawRect(myX,myY,rectSize,rectSize,true);
+	drawRect(myX,myY,rectSize,rectSize,myColor);
 }
 
 function drawRect(cx,cy,xs,ys,cflag) {
-	if (cflag) {
-		ctx.fillStyle = "#FF0000"
-	} else {
-		ctx.fillStyle = "#0000FF"
+	switch (cflag) {
+		case 'red':
+			ctx.fillStyle = "#FF0000"; break;
+		case 'green':
+			ctx.fillStyle = "#00FF00"; break;
+		case 'blue':
+			ctx.fillStyle = "#0000FF"; break;
 	}
 	ctx.fillRect(canvas.width/2+cx-xs/2,canvas.height/2+cy-ys/2,xs,ys);
+}
+
+var spDist = 310;
+
+function deg2rad(deg) {
+	return deg * Math.PI / 180;
+}
+
+function setupStartPos() {
+	curDeg = startPos*45;
+	curRad = deg2rad(curDeg);
+	goalX = spDist*Math.sin(curRad);
+	goalY = spDist*Math.cos(curRad);
 }
 
 var trial  = {
@@ -498,14 +549,16 @@ var trial  = {
 
 	},
 
-	center: function() {
-		goalX = 150; goalY = 150;
+	resetRects: function() {
+		setupStartPos();
 		myX = 0; myY = 0;
 		lVeloc = 0.0; tVeloc = 0.0;
+		myColor = 'red';
 	},
 
 	draw: function(started) {
-		trial.center();
+		trial.resetRects();
+		lastTick = now();
 		frameID = window.requestAnimationFrame(drawHelper);
 	},
 

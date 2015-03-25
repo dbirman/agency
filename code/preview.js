@@ -2,7 +2,7 @@ var started = false;
 
 if (turk.previewMode) {
 	$(".noprev").hide();
-	$("#startButton").text('Preview a Trial');
+	$("#startButton").text('Preview 3 Trials');
 }
 
 function buttonClick() {
