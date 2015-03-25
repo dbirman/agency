@@ -167,19 +167,19 @@ document.onkeydown = function(event) {
 	event = event || window.event;
 	switch (event.keyCode) {
 		case 37: // left
-			k_l = true;
+			if(flipCons) {k_r = true;} else {k_l = true;}
 			event.preventDefault();
 			break;
 		case 38: // up
-			k_u = true;
+			if(flipCons) {k_d = true;} else {k_u = true;}
 			event.preventDefault();
 			break;
 		case 39: // right
-			k_r = true;
+			if(flipCons) {k_l = true;} else {k_r = true;}
 			event.preventDefault();
 			break;
 		case 40: // down
-			k_d = true;
+			if(flipCons) {k_u = true;} else {k_d = true;}
 			event.preventDefault();
 			break;
 	}
@@ -264,7 +264,8 @@ var gAccel = .00005, fricVal = .00001, jitterStr = 10, randSwitch = 1000;
 var gList = [false, false, false, false, true],
 	fList = [false, true, true, true, true],
 	jList = [false, false, false, true, true],
-	rList = [false, false, true, false, true];
+	rList = [false, false, true, false, true],
+	flList = [true, false, false, false, false];
 
 var experiment = {
 
@@ -293,6 +294,7 @@ var experiment = {
 			friction = fList[curTrial-1];
 			jitter = jList[curTrial-1];
 			randControl = rList[curTrial-1];
+			flipCons = flList[curTrial-1];
 			inst == 0;
 			startPos = randomElement([0,1,2,3,4,5,6,7])
 		} else {
