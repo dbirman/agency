@@ -167,7 +167,8 @@ document.onkeydown = function(event) {
 	event = event || window.event;
 	switch (event.keyCode) {
 		case 37: // left
-			if(flipCons) {k_r = true;} else {k_l = true;}
+			if(flipCons)
+			k_l = true; {k_r = true;} else {k_l = true;}
 			event.preventDefault();
 			break;
 		case 38: // up
@@ -296,12 +297,17 @@ var experiment = {
 			randControl = rList[curTrial-1];
 			flipCons = flList[curTrial-1];
 			inst == 0;
-			startPos = randomElement([0,1,2,3,4,5,6,7])
+			startPos = randomElement([0,1,2,3,4,5,6,7]);
+			myStartPos = randomElement([0, 1, 2, 3, 4]);
 		} else {
 			experiment.end();
 			return;
 		}
 
+		experiment.showInstructions();
+	},
+
+	showInstructions: function() {
 		showSlide("trial_instructions")
 		if (inst==1) {
 			$("#inst").hide();
@@ -324,7 +330,8 @@ var experiment = {
 	setupNext: function() {
 		if (!dead) {
 			if (curTrial > 0) {
-				if (curTrial > 2 && opener.turk.previewMode) {
+				// Die on trial 3 and go to preview screen
+				if (curTrial = 3 && opener.turk.previewMode) {
 					experiment.end();
 				} else {
 					trial.pushData(false);
@@ -334,6 +341,7 @@ var experiment = {
 				showSlide("trial");
 			}
 		} else {
+			// When you're dead, tell them they have to re-start in fullscreen mode
 			showSlide("full-exit");
 		}
 	},
@@ -346,7 +354,7 @@ var experiment = {
 	    experiment.setupNext();
 	},
 
-	prerun: function() {
+	collectDemographics: function() {
 		if (document.getElementById('agebox').value=="" || document.getElementById('sexbox').value=="") {
 			alert("Please enter your age and sex. These demographic information are important for our study.");
 			return
@@ -478,18 +486,18 @@ function checkMove(elapsedTime,mult) {
 	if (randControl) {
 		if ((now() - lastRandSwitch) > randSwitch) {
 			lastRandSwitch = now();
-			k_l = randomElement([true, false, false]);
-			k_d = randomElement([true, false, false]);
-			k_u = randomElement([true, false, false]);
-			k_r = randomElement([true, false, false]);
+			k_lO = randomElement([true, false, false]);
+			k_dO = randomElement([true, false, false]);
+			k_uO = randomElement([true, false, false]);
+			k_rO = randomElement([true, false, false]);
 		}
 	}
 
 	leftMove = 0; topMove = 0;
-	if (k_l) {leftMove = leftMove - elapsedTime*mult}
-	if (k_r) {leftMove = leftMove + elapsedTime*mult}
-	if (k_u) {topMove = topMove - elapsedTime*mult}
-	if (k_d) {topMove = topMove + elapsedTime*mult}
+	if (k_lO || k_l) {leftMove = leftMove - elapsedTime*mult}
+	if (k_rO || k_r) {leftMove = leftMove + elapsedTime*mult}
+	if (k_uO || k_u) {topMove = topMove - elapsedTime*mult}
+	if (k_dO || k_d) {topMove = topMove + elapsedTime*mult}
 	lVeloc += leftMove;
 	tVeloc += topMove;
 }
@@ -543,6 +551,18 @@ function setupStartPos() {
 	curRad = deg2rad(curDeg);
 	goalX = spDist*Math.sin(curRad);
 	goalY = spDist*Math.cos(curRad);
+	switch (myStartPos) {
+		case 0:
+			myX = 0; myY = 0; break;
+		case 1:
+			myX = -450; myY = -310; break;
+		case 2:
+			myX = -450; myY = 310; break;
+		case 3:
+			myX = 450; myY = 310; break;
+		case 4:
+			myX = 450; myY = -310; break;
+	}
 }
 
 var trial  = {
@@ -553,7 +573,6 @@ var trial  = {
 
 	resetRects: function() {
 		setupStartPos();
-		myX = 0; myY = 0;
 		lVeloc = 0.0; tVeloc = 0.0;
 		myColor = 'red';
 	},

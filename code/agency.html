@@ -32,7 +32,7 @@
 			Age: <input type=number id="agebox"><br>
 			Sex: <input type=text id="sexbox"><br>
 			<p>(All responses and data are anonymous)</p>
-			<button type="button" onclick="this.blur(); experiment.prerun()">Continue</button>
+			<button type="button" onclick="this.blur(); experiment.collectDemographics()">Continue</button>
 		</div>
 	</div>
 
@@ -69,7 +69,7 @@
 		<div class="centerbox">
 			<p class="bolded" id="inst_warning">STOP! THE INSTRUCTIONS MAY HAVE CHANGED: PLEASE READ CAREFULLY!!</p>
 			<p class='block-text' id="inst_reaper">not implemented.</p>
-			<p class="block-text" id="inst">On the next trial, use the arrow keys to move the box into the circle. Do your best to succeed, your time is limited.</p>
+			<p class="block-text" id="inst">On the next trial, use the arrow keys to move the red box onto the blue box. Do your best to succeed, your time is limited.</p>
 			<button type="button" onclick="this.blur(); experiment.ready()">I'm Ready</button>
 		</div>
 
