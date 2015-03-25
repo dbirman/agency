@@ -167,8 +167,7 @@ document.onkeydown = function(event) {
 	event = event || window.event;
 	switch (event.keyCode) {
 		case 37: // left
-			if(flipCons)
-			k_l = true; {k_r = true;} else {k_l = true;}
+			if(flipCons) {k_r = true;} else {k_l = true;}
 			event.preventDefault();
 			break;
 		case 38: // up
@@ -259,7 +258,7 @@ var inst;
 var gravity = false, friction = false, jitter = false, randControl = false, flipCons = false;
 var startPos;
 // game settings
-var gAccel = .00005, fricVal = .00001, jitterStr = 10, randSwitch = 1000;
+var gAccel = .000025, fricVal = .00001, jitterStr = 10, randSwitch = 1000;
 
 // trial by trial settings
 var gList = [false, false, false, false, true],
@@ -465,10 +464,10 @@ function checkOffscreen() {
 	if (goalY < rectSize/2-canvas.height/2) {goalY = rectSize/2-canvas.height/2;}
 	if (goalX > canvas.width/2-rectSize/2) {goalX = canvas.width/2-rectSize/2;}
 	if (goalY > canvas.height/2-rectSize/2) {goalY = canvas.height/2-rectSize/2;}
-	if (myX < rectSize/2-canvas.width/2) {myX = rectSize/2-canvas.width/2;}
-	if (myY < rectSize/2-canvas.height/2) {myY = rectSize/2-canvas.height/2;}
-	if (myX > canvas.width/2-rectSize/2) {myX = canvas.width/2-rectSize/2;}
-	if (myY > canvas.height/2-rectSize/2) {myY = canvas.height/2-rectSize/2;}
+	if (myX < rectSize/2-canvas.width/2) {myX = rectSize/2-canvas.width/2; lVeloc = 0;}
+	if (myY < rectSize/2-canvas.height/2) {myY = rectSize/2-canvas.height/2; lVeloc = 0;}
+	if (myX > canvas.width/2-rectSize/2) {myX = canvas.width/2-rectSize/2; tVeloc = 0;}
+	if (myY > canvas.height/2-rectSize/2) {myY = canvas.height/2-rectSize/2; tVeloc = 0;}
 }
 
 function myMove(elapsedTime) {
@@ -481,6 +480,7 @@ function myMove(elapsedTime) {
 }
 
 var lastRandSwitch = now();
+var k_lO, k_dO, k_uO, k_rO;
 
 function checkMove(elapsedTime,mult) {
 	if (randControl) {
