@@ -258,14 +258,15 @@ var inst;
 var gravity = false, friction = false, jitter = false, randControl = false, flipCons = false;
 var startPos;
 // game settings
-var gAccel = .000025, fricVal = .00001, jitterStr = 10, randSwitch = 1000;
+var gAccel = .000025, fricVal = .00001, fricPerc = .0005, jitterStr = 10, randSwitch = 1000;
 
-// trial by trial settings
-var gList = [false, false, false, false, true],
-	fList = [false, true, true, true, true],
-	jList = [false, false, false, true, true],
-	rList = [false, false, true, false, true],
-	flList = [true, false, false, false, false];
+// trial by trial settings (just for debugging)
+//           	1 		2 		3 		4 		5
+var gList = [	true, 	false, 	false, 	false, 	true],
+	fList = [	false, 	true, 	true, 	true, 	true],
+	jList = [	false, 	false, 	false, 	true, 	true],
+	rList = [	false, 	false, 	true, 	false, 	true],
+	flList = [	false, 	false, 	false, 	false, 	true];
 
 var experiment = {
 
@@ -389,17 +390,17 @@ var experiment = {
 	}
 }
 
-var frameID,
-    started;
-var flippedTime = [];
+// tracking variables
+var frameID, started, flippedTime = [], xPos = [], yPos = [], myStartX, myStartY, goalStartX, goalStartY;
+
+// fullscreen controller
 var dead = false;
 
-var cx = $(window).width() / 2;
-var cy = $(window).height() / 2;
-
+// canvas variables
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
+// more tracking variables
 var lastTick = 0; var lVeloc = 0.0, tVeloc = 0.0;
 
 function drawHelper() {
@@ -440,6 +441,10 @@ function drawHelper() {
 
 	// draw stuff
 	render();
+
+	// tracking
+	xPos.push(myX);
+	yPos.push(myY);
 	
 	// next draw
 	frameID = window.requestAnimationFrame(drawHelper);
@@ -452,10 +457,10 @@ function fundamentalForces(elapsedTime) {
 		}
 	}
 	if (friction) {
-		if (lVeloc > 0) {lVeloc -= (Math.abs(lVeloc*.001*elapsedTime) + fricVal*elapsedTime); if(lVeloc<0) {lVeloc=0;}}
-		if (lVeloc < 0) {lVeloc += (Math.abs(lVeloc*.001*elapsedTime) + fricVal*elapsedTime); if(lVeloc>0) {lVeloc=0;}}
-		if (tVeloc > 0) {tVeloc -= (Math.abs(tVeloc*.001*elapsedTime) + fricVal*elapsedTime); if(tVeloc<0) {tVeloc=0;}}
-		if (tVeloc < 0) {tVeloc += (Math.abs(tVeloc*.001*elapsedTime) + fricVal*elapsedTime); if(tVeloc>0) {tVeloc=0;}}
+		if (lVeloc > 0) {lVeloc -= (Math.abs(lVeloc*fricPerc*elapsedTime) + fricVal*elapsedTime); if(lVeloc<0) {lVeloc=0;}}
+		if (lVeloc < 0) {lVeloc += (Math.abs(lVeloc*fricPerc*elapsedTime) + fricVal*elapsedTime); if(lVeloc>0) {lVeloc=0;}}
+		if (tVeloc > 0) {tVeloc -= (Math.abs(tVeloc*fricPerc*elapsedTime) + fricVal*elapsedTime); if(tVeloc<0) {tVeloc=0;}}
+		if (tVeloc < 0) {tVeloc += (Math.abs(tVeloc*fricPerc*elapsedTime) + fricVal*elapsedTime); if(tVeloc>0) {tVeloc=0;}}
 	}
 }
 
@@ -465,8 +470,8 @@ function checkOffscreen() {
 	if (goalX > canvas.width/2-rectSize/2) {goalX = canvas.width/2-rectSize/2;}
 	if (goalY > canvas.height/2-rectSize/2) {goalY = canvas.height/2-rectSize/2;}
 	if (myX < rectSize/2-canvas.width/2) {myX = rectSize/2-canvas.width/2; lVeloc = 0;}
-	if (myY < rectSize/2-canvas.height/2) {myY = rectSize/2-canvas.height/2; lVeloc = 0;}
-	if (myX > canvas.width/2-rectSize/2) {myX = canvas.width/2-rectSize/2; tVeloc = 0;}
+	if (myY < rectSize/2-canvas.height/2) {myY = rectSize/2-canvas.height/2; tVeloc = 0;}
+	if (myX > canvas.width/2-rectSize/2) {myX = canvas.width/2-rectSize/2; lVeloc = 0;}
 	if (myY > canvas.height/2-rectSize/2) {myY = canvas.height/2-rectSize/2; tVeloc = 0;}
 }
 
@@ -563,12 +568,32 @@ function setupStartPos() {
 		case 4:
 			myX = 450; myY = -310; break;
 	}
+	myStartX = myX;
+	myStartY = myY;
+	goalStartX = goalX;
+	goalStartY = goalY;
 }
 
 var trial  = {
 
 	pushData: function(leftFull) {
+		// things you might want to use:
+		// flippedTime
+		// myStartX
+		// myStartY
+		// goalX
+		// goalY
+		// xPos
+		// yPos
+		// gravity
+		// friction
+		// jitter
+		// randControl
+		// flipCons (flipControls)
 
+		// things that are redundant if you track the above:
+		// startPos
+		// myStartPos
 	},
 
 	resetRects: function() {
