@@ -177,6 +177,8 @@ function setGeo(data) {
 
 })()
 
+// first movement
+var firstMove = false;
 // Keypress helpers
 var k_u = false, k_l = false, k_d = false, k_r = false;
 
@@ -333,13 +335,13 @@ createPath = function(sX, sY, eX, eY) {
 // trial by trial settings (just for debugging)
 //           	1 		2 		3 		4 		5
 var gList = [	false, 	false, 	false, 	false, 	false],
-	fList = [	false, 	false, 	false, 	false, 	false],
+	fList = [	true, 	true, 	true, 	true, 	true],
 	jList = [	false, 	false, 	false, 	false, 	false],
 	rList = [	false, 	false, 	false, 	false, 	false],
 	flList = [	false, 	false, 	false, 	false, 	false];
 var cgList= [true, true, true, true ,true],
 	fpList = [true, true, true, true ,true],
-	vaList = [true, true, true, true ,true];
+	vaList = [false, false, false, false ,false];
 
 var experiment = {
 
@@ -382,6 +384,8 @@ var experiment = {
 				closeGoal.target = randomElement([true, false]);
 				farGoal.target = !closeGoal.target;
 			}
+			// track first movement (for visibleAgent)
+			firstMove = false;
 		} else {
 			experiment.end();
 			return;
@@ -506,6 +510,7 @@ function drawHelper() {
 
 	// check if we made it to the goal state
 	if (checkGoal()) {
+		visibleAgent = true;
 		window.cancelAnimationFrame(frameID);
 		myColor = 'green';
 		render();
@@ -582,6 +587,9 @@ function checkMove(elapsedTime,mult) {
 	if (k_rO || k_r) {leftMove = leftMove + elapsedTime*mult}
 	if (k_uO || k_u) {topMove = topMove - elapsedTime*mult}
 	if (k_dO || k_d) {topMove = topMove + elapsedTime*mult}
+	if (!firstMove && (k_l || k_r || k_u || k_d)) {
+		firstMove = true;
+	}
 	lVeloc += leftMove;
 	tVeloc += topMove;
 }
@@ -605,7 +613,9 @@ function render() {
 	ctx.clearRect(0,0,canvas.width,canvas.height);
 	renderPath();
 	renderGoal();
-	renderMy();
+	if (visibleAgent || !firstMove) {
+		renderMy();
+	}
 }
 
 function renderGoal() {
