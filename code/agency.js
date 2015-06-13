@@ -595,7 +595,14 @@ function checkMove(elapsedTime,mult) {
 }
 
 function checkGoal() {
-	return cgHelper(closeGoal.x,closeGoal.y) || cgHelper(farGoal.x,farGoal.y);
+	if (chooseGoal) {return cgHelper(closeGoal.x,closeGoal.y) || cgHelper(farGoal.x,farGoal.y);}
+	else {
+		if (closeGoal.target) {
+			return cgHelper(closeGoal.x,closeGoal.y);
+		} else {
+			return cgHelper(farGoal.x, farGoal.y);
+		}
+	}
 }
 function cgHelper(gX, gY) {
 	return (myX > gX - rectSize && myX < gX + rectSize) &&
