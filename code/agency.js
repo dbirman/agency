@@ -1,3 +1,12 @@
+// test function
+function test() {
+	showSlide('frame');
+	experiment.next();
+	setupStartPos();
+	closeGoal.target = true;
+	render();
+}
+
 
 //General helper functions
 
@@ -30,24 +39,32 @@ function exitFullscreen() {
  * http://stackoverflow.com/questions/3895478/does-javascript-have-a-method-like-range-to-generate-an-array-based-on-suppl
 */
 Array.range= function(a, b, step){
-    var A= [];
-    if(typeof a== 'number'){
-        A[0]= a;
-        step= step || 1;
-        while(a+step<= b){
-            A[A.length]= a+= step;
-        }
-    }
-    else{
-        var s= 'abcdefghijklmnopqrstuvwxyz';
-        if(a=== a.toUpperCase()){
-            b=b.toUpperCase();
-            s= s.toUpperCase();
-        }
-        s= s.substring(s.indexOf(a), s.indexOf(b)+ 1);
-        A= s.split('');        
-    }
-    return A;
+  var A= [];
+  if(typeof a== 'number'){
+  	if (b>a) {
+      A[0]= a;
+      step= step || 1;
+      while(a+step<= b){
+          A[A.length]= a+= step;
+      }
+  	} else {
+  		// b < a (i.e. probably negative, so we go in reverse)
+  		A[0] = a;
+  		while(A[A.length-1]>b) {
+  			A[A.length] = a -= 1;
+  		}
+  	}
+  }
+  else{
+      var s= 'abcdefghijklmnopqrstuvwxyz';
+      if(a=== a.toUpperCase()){
+          b=b.toUpperCase();
+          s= s.toUpperCase();
+      }
+      s= s.substring(s.indexOf(a), s.indexOf(b)+ 1);
+      A= s.split('');        
+  }
+  return A;
 }
 
 var imageSrcList = new Array();
@@ -256,20 +273,75 @@ if (fingerprint.screenHeight <= 700) {
 var inst;
 // game vars
 var gravity = false, friction = false, jitter = false, randControl = false, flipCons = false;
+// agency manipulation vars
+var chooseGoal = false, forcePath = false, visibleAgent = false;
 var startPos;
 // game settings
 var gAccel = .000025, fricVal = .00001, fricPerc = .0005, jitterStr = 10, randSwitch = 1000;
+// goal settings
+var closeGoal = {
+	x: 0,
+	y: 0,
+	rad: 150,
+	pos: -1,
+	color: 'blue',
+	pathX: [],
+	pathY: [],
+	target: false
+}
+
+var farGoal = {
+	x: 0,
+	y: 0,
+	rad: 300,
+	pos: -1,
+	color: 'blue',
+	pathX: [],
+	pathY: [],
+	target: false
+}
+
+createPath = function(sX, sY, eX, eY) {
+	// The idea here is to generate a path of three pieces that will get us to 
+	// the final end coordinates. We choose whether to start horizontally or
+	// vertically randomly, then break the path up randomly for the other 
+	// missing piece.
+	pathX = [sX];
+	pathY = [sY];
+	if (randomElement([true, false])) {
+		// start horizontal
+		dist = eX - sX; // total distance to travel
+		breakPoint = randomElement(Array.range(1,dist-1,1));
+		pathX.push(sX+breakPoint);
+		pathX.push(sX+breakPoint);
+		pathY.push(sY);
+		pathY.push(eY);
+	} else {
+		// start vertical
+		dist = eY - sY; // total distance to travel
+		breakPoint = randomElement(Array.range(1,dist-1,1));
+		pathY.push(sY+breakPoint);
+		pathY.push(sY+breakPoint);
+		pathX.push(sX);
+		pathX.push(eX);	
+	}
+	pathX.push(eX);
+	pathY.push(eY);
+	return([pathX, pathY]);
+}
 
 // trial by trial settings (just for debugging)
 //           	1 		2 		3 		4 		5
-var gList = [	true, 	false, 	false, 	false, 	true],
-	fList = [	false, 	true, 	true, 	true, 	true],
-	jList = [	false, 	false, 	false, 	true, 	true],
-	rList = [	false, 	false, 	true, 	false, 	true],
-	flList = [	false, 	false, 	false, 	false, 	true];
+var gList = [	false, 	false, 	false, 	false, 	false],
+	fList = [	false, 	false, 	false, 	false, 	false],
+	jList = [	false, 	false, 	false, 	false, 	false],
+	rList = [	false, 	false, 	false, 	false, 	false],
+	flList = [	false, 	false, 	false, 	false, 	false];
+var cgList= [true, true, true, true ,true],
+	fpList = [true, true, true, true ,true],
+	vaList = [true, true, true, true ,true];
 
 var experiment = {
-
 
 	end: function() {
 		watchingFull = false;
@@ -290,15 +362,26 @@ var experiment = {
 		// Setup the next trial based on what trial number we are on (you can also use 
 		// arrays and then pick out of the arrays using curTrial)
 		if (curTrial <= 5) {
-			// regular trial
+			// regular trial (note indexed from 0->)
+			// control variables
 			gravity = gList[curTrial-1];
 			friction = fList[curTrial-1];
 			jitter = jList[curTrial-1];
 			randControl = rList[curTrial-1];
 			flipCons = flList[curTrial-1];
+			// game variables
+			chooseGoal = cgList[curTrial-1];
+			forcePath = fpList[curTrial-1];
+			visibleAgent = vaList[curTrial-1];
+			// instructions, start location
 			inst == 0;
-			startPos = randomElement([0,1,2,3,4,5,6,7]);
-			myStartPos = randomElement([0, 1, 2, 3, 4]);
+			closeGoal.pos = randomElement([0,1,2,3,4,5,6,7]);
+			farGoal.pos = randomElement([0,1,2,3,4,5,6,7]);
+			//
+			if (!chooseGoal) {
+				closeGoal.target = randomElement([true, false]);
+				farGoal.target = !closeGoal.target;
+			}
 		} else {
 			experiment.end();
 			return;
@@ -391,7 +474,7 @@ var experiment = {
 }
 
 // tracking variables
-var frameID, started, flippedTime = [], xPos = [], yPos = [], myStartX, myStartY, goalStartX, goalStartY;
+var frameID, started, flippedTime = [], xPos = [], yPos = [], myStartX, myStartY
 
 // fullscreen controller
 var dead = false;
@@ -465,10 +548,6 @@ function fundamentalForces(elapsedTime) {
 }
 
 function checkOffscreen() {
-	if (goalX < rectSize/2-canvas.width/2) {goalX = rectSize/2-canvas.width/2;}
-	if (goalY < rectSize/2-canvas.height/2) {goalY = rectSize/2-canvas.height/2;}
-	if (goalX > canvas.width/2-rectSize/2) {goalX = canvas.width/2-rectSize/2;}
-	if (goalY > canvas.height/2-rectSize/2) {goalY = canvas.height/2-rectSize/2;}
 	if (myX < rectSize/2-canvas.width/2) {myX = rectSize/2-canvas.width/2; lVeloc = 0;}
 	if (myY < rectSize/2-canvas.height/2) {myY = rectSize/2-canvas.height/2; tVeloc = 0;}
 	if (myX > canvas.width/2-rectSize/2) {myX = canvas.width/2-rectSize/2; lVeloc = 0;}
@@ -508,29 +587,87 @@ function checkMove(elapsedTime,mult) {
 }
 
 function checkGoal() {
-	return (myX > goalX - rectSize && myX < goalX + rectSize) &&
-		(myY > goalY - rectSize && myY < goalY + rectSize);
+	return cgHelper(closeGoal.x,closeGoal.y) || cgHelper(farGoal.x,farGoal.y);
+}
+function cgHelper(gX, gY) {
+	return (myX > gX - rectSize && myX < gX + rectSize) &&
+		(myY > gY - rectSize && myY < gY + rectSize);
 }
 
 // Rendering functions
-
-var goalX, goalY;
 var myX, myY;
-var myColor = 'red';
-var rectSize = 50;
+var myColor = 'blue';
+
+// General rectangle stuff
+var rectSize = 25;
 
 function render() {
 	ctx.clearRect(0,0,canvas.width,canvas.height);
+	renderPath();
 	renderGoal();
 	renderMy();
 }
 
 function renderGoal() {
-	drawRect(goalX,goalY,rectSize,rectSize,'blue');
+	drawRect(closeGoal.x,closeGoal.y,rectSize,rectSize,closeGoal.color);
+	drawRect(farGoal.x,farGoal.y,rectSize,rectSize,closeGoal.color);
+	if (closeGoal.target) {
+		drawOpenRect(closeGoal.x,closeGoal.y,rectSize+20,rectSize+20,'green');
+	}
+	if (farGoal.target) {
+		drawOpenRect(farGoal.x,farGoal.y,rectSize+20,rectSize+20,'green');
+	}
 }
 
 function renderMy() {
 	drawRect(myX,myY,rectSize,rectSize,myColor);
+}
+
+function renderPath() {
+	drawPath(closeGoal.pathX,closeGoal.pathY,'black');
+	drawPath(farGoal.pathX,farGoal.pathY,'black');
+}
+
+// given a 0,0 centered coordinate, returns the canvas coordinate
+function cen2canx(x) {
+	return canvas.width/2+x;
+}
+function cen2cany(y) {
+	return canvas.height/2+y;
+}
+
+function drawPath(pathX,pathY,color) {
+	switch (color) {
+		case 'red':
+			ctx.strokeStyle = "#FF0000"; break;
+		case 'green':
+			ctx.strokeStyle = "#00FF00"; break;
+		case 'blue':
+			ctx.strokeStyle = "#0000FF"; break;
+		case 'black':
+			ctx.strokeStyle = "#000000"; break;
+	}
+	ctx.lineWidth = "2";
+	ctx.beginPath();
+	ctx.moveTo(cen2canx(pathX[0]),cen2cany(pathY[0]));
+	for (i=1;i<4;i++) {
+		// iterate across path locations
+		ctx.lineTo(cen2canx(pathX[i]),cen2cany(pathY[i]));
+	}
+	ctx.stroke();
+}
+
+function drawOpenRect(cx,cy,xs,ys,cflag) {
+	switch (cflag) {
+		case 'red':
+			ctx.strokeStyle = "#FF0000"; break;
+		case 'green':
+			ctx.strokeStyle = "#00FF00"; break;
+		case 'blue':
+			ctx.strokeStyle = "#0000FF"; break;
+	}
+	ctx.lineWidth = "1";
+	ctx.strokeRect(cen2canx(cx)-xs/2,cen2cany(cy)-ys/2,xs,ys);
 }
 
 function drawRect(cx,cy,xs,ys,cflag) {
@@ -542,7 +679,7 @@ function drawRect(cx,cy,xs,ys,cflag) {
 		case 'blue':
 			ctx.fillStyle = "#0000FF"; break;
 	}
-	ctx.fillRect(canvas.width/2+cx-xs/2,canvas.height/2+cy-ys/2,xs,ys);
+	ctx.fillRect(cen2canx(cx)-xs/2,cen2cany(cy)-ys/2,xs,ys);
 }
 
 var spDist = 310;
@@ -552,26 +689,21 @@ function deg2rad(deg) {
 }
 
 function setupStartPos() {
-	curDeg = startPos*45;
-	curRad = deg2rad(curDeg);
-	goalX = spDist*Math.sin(curRad);
-	goalY = spDist*Math.cos(curRad);
-	switch (myStartPos) {
-		case 0:
-			myX = 0; myY = 0; break;
-		case 1:
-			myX = -450; myY = -310; break;
-		case 2:
-			myX = -450; myY = 310; break;
-		case 3:
-			myX = 450; myY = 310; break;
-		case 4:
-			myX = 450; myY = -310; break;
-	}
-	myStartX = myX;
-	myStartY = myY;
-	goalStartX = goalX;
-	goalStartY = goalY;
+	// setup close goal
+	closeGoal.x = closeGoal.rad*Math.sin(deg2rad(closeGoal.pos*45));
+	closeGoal.y = closeGoal.rad*Math.cos(deg2rad(closeGoal.pos*45));
+	path = createPath(0,0,closeGoal.x,closeGoal.y);
+	closeGoal.pathX = path[0];
+	closeGoal.pathY = path[1];
+	// far goals
+	farGoal.x = farGoal.rad*Math.sin(deg2rad(farGoal.pos*45));
+	farGoal.y = farGoal.rad*Math.cos(deg2rad(farGoal.pos*45));
+	path = createPath(0,0,farGoal.x,farGoal.y);
+	farGoal.pathX = path[0];
+	farGoal.pathY = path[1];
+	// me 
+	myX = 0;
+	myY = 0;
 }
 
 var trial  = {
