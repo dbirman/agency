@@ -383,6 +383,8 @@ var experiment = {
 			if (!chooseGoal) {
 				closeGoal.target = randomElement([true, false]);
 				farGoal.target = !closeGoal.target;
+			} else {
+				closeGoal.target = false; farGoal.target = false;
 			}
 			// track first movement (for visibleAgent)
 			firstMove = false;
