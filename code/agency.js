@@ -3,7 +3,6 @@ function test() {
 	showSlide('frame');
 	experiment.next();
 	setupStartPos();
-	closeGoal.target = true;
 	render();
 }
 
@@ -14,6 +13,10 @@ function showSlide(id) {
 	$(".slide").hide();
 	$("#"+id).show();
 }
+
+Array.prototype.diff = function(a) {
+    return this.filter(function(i) {return a.indexOf(i) < 0;});
+};
 
 function launchFullScreen(element) {
   if(element.requestFullScreen) {
@@ -65,9 +68,9 @@ Array.range= function(a, b, step){
       A= s.split('');        
   }
   return A;
-}
+};
 
-var imageSrcList = new Array();
+var imageSrcList = [];
 
 //Image helpers
 
@@ -127,7 +130,7 @@ function exitHandler()
 	if (watchingFull) {
 	    if (!document.webkitIsFullScreen && !document.mozFullScreen && !(document.msFullscreenElement))
 	    {
-  			$(document.body).css("cursor","auto")
+  			$(document.body).css("cursor","auto");
 	    	dead = true;
   			if (curTrial > 0) {trial.pushData(true);}
 	        showSlide("full-exit");
@@ -161,7 +164,7 @@ function setGeo(data) {
     geo: "",
     timezone: new Date().getTimezoneOffset(),
     plugins: Array.prototype.slice.call(navigator.plugins).map(function(x) { return {filename: x.filename, description: x.description}})
-  }
+  };
 
 
   var isLocal = /file/.test(location.protocol);
@@ -175,7 +178,7 @@ function setGeo(data) {
   
   document.body.appendChild(scriptEl);
 
-})()
+})();
 
 // first movement
 var firstMove = false;
@@ -202,7 +205,7 @@ document.onkeydown = function(event) {
 			event.preventDefault();
 			break;
 	}
-}
+};
 
 document.onkeyup = function(event) {
 	event = event || window.event;
@@ -224,13 +227,19 @@ document.onkeyup = function(event) {
 			event.preventDefault();
 			break;
 	}
-}
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 // WEBPAGE LAUNCH /////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
+
+// define a function that will get called once
+// all images have been successfully loaded
+function onLoadedAll() {
+  showSlide("demographics");
+}
 
 if (fingerprint.screenHeight <= 700) {
 	showSlide("screensmall");
@@ -246,12 +255,6 @@ if (fingerprint.screenHeight <= 700) {
 	// $("#dispImg").height(700);
 
 	var numLoadedImages = 0;
-
-	// define a function that will get called once
-	// all images have been successfully loaded
-	function onLoadedAll() {
-	  showSlide("demographics");
-	}
 
 	var curTrial = 0;
 
@@ -282,7 +285,7 @@ var startPos;
 var curPathClose = null;
 var curPathSeg = -1;
 // game settings
-var gAccel = .000025, fricVal = .00001, fricPerc = .0005, jitterStr = 10, randSwitch = 1000;
+var gAccel = 0.000025, fricVal = 0.00001, fricPerc = 0.0005, jitterStr = 10, randSwitch = 1000;
 // goal settings
 var closeGoal = {
 	x: 0,
@@ -292,48 +295,52 @@ var closeGoal = {
 	color: 'blue',
 	pathX: [],
 	pathY: [],
+	pathH: [],
 	target: false
-}
+};
 
 var farGoal = {
 	x: 0,
 	y: 0,
-	rad: 300,
+	rad: 250,
 	pos: -1,
 	color: 'blue',
 	pathX: [],
 	pathY: [],
+	pathH: [],
 	target: false
-}
+};
 
-createPath = function(sX, sY, eX, eY) {
+createPath = function(sX, sY, eX, eY, horiz) {
 	// The idea here is to generate a path of three pieces that will get us to 
 	// the final end coordinates. We choose whether to start horizontally or
 	// vertically randomly, then break the path up randomly for the other 
 	// missing piece.
 	pathX = [sX];
 	pathY = [sY];
-	if (randomElement([true, false])) {
+	if (horiz) {
 		// start horizontal
 		dist = eX - sX; // total distance to travel
-		breakPoint = randomElement(Array.range(1,dist-1,1));
+		breakPoint = randomElement(Array.range(rectSize,dist-(rectSize+1),1));
 		pathX.push(sX+breakPoint);
 		pathX.push(sX+breakPoint);
 		pathY.push(sY);
 		pathY.push(eY);
+		pathH = [true, false, true];
 	} else {
 		// start vertical
 		dist = eY - sY; // total distance to travel
-		breakPoint = randomElement(Array.range(1,dist-1,1));
+		breakPoint = randomElement(Array.range(rectSize,dist-(rectSize+1),1));
 		pathY.push(sY+breakPoint);
 		pathY.push(sY+breakPoint);
 		pathX.push(sX);
-		pathX.push(eX);	
+		pathX.push(eX);
+		pathH = [false, true, false];
 	}
 	pathX.push(eX);
 	pathY.push(eY);
-	return([pathX, pathY]);
-}
+	return([pathX, pathY, pathH]);
+};
 
 // trial by trial settings (just for debugging)
 //           	1 		2 		3 		4 		5
@@ -344,7 +351,7 @@ var gList = [	false, 	false, 	false, 	false, 	false],
 	flList = [	false, 	false, 	false, 	false, 	false];
 var cgList= [true, true, true, true ,true],
 	fpList = [true, true, true, true ,true],
-	vaList = [false, false, false, false ,false];
+	vaList = [true, true, true, true ,true];
 
 var experiment = {
 
@@ -356,7 +363,7 @@ var experiment = {
 			$("#finishText").hide();
 			$("#finishTextPrev").show();
 		} else {
-			setTimeout(function() { opener.turk.submit(allData) }, 1500);
+			setTimeout(function() { opener.turk.submit(allData); }, 1500);
 			$("#finishText").show();
 			$("#finishTextPrev").hide();
 		}
@@ -379,9 +386,11 @@ var experiment = {
 			forcePath = fpList[curTrial-1];
 			visibleAgent = vaList[curTrial-1];
 			// instructions, start location
-			inst == 0;
-			closeGoal.pos = randomElement([0,1,2,3,4,5,6,7]);
-			farGoal.pos = randomElement([0,1,2,3,4,5,6,7]);
+			inst = 0;
+			posOpts = [-.1,.1,1,1.9,2.1,3,3.9,4.1,5,5.9,6.1,7];
+			closeGoal.pos = randomElement(posOpts);
+			posOpts = posOpts.diff([closeGoal.pos,closeGoal.pos-.2,closeGoal.pos+.2]);
+			farGoal.pos = randomElement(posOpts);
 			// path info
 			if (forcePath) {
 
@@ -403,7 +412,7 @@ var experiment = {
 	},
 
 	showInstructions: function() {
-		showSlide("trial_instructions")
+		showSlide("trial_instructions");
 		if (inst==1) {
 			$("#inst").hide();
 			$("#inst_reaper").show();
@@ -426,7 +435,7 @@ var experiment = {
 		if (!dead) {
 			if (curTrial > 0) {
 				// Die on trial 3 and go to preview screen
-				if (curTrial = 3 && opener.turk.previewMode) {
+				if (curTrial == 3 && opener.turk.previewMode) {
 					experiment.end();
 				} else {
 					trial.pushData(false);
@@ -452,7 +461,7 @@ var experiment = {
 	collectDemographics: function() {
 		if (document.getElementById('agebox').value=="" || document.getElementById('sexbox').value=="") {
 			alert("Please enter your age and sex. These demographic information are important for our study.");
-			return
+			return;
 		}
 		//age info
 		allData.demo = {};
@@ -461,32 +470,32 @@ var experiment = {
 		sVal = document.getElementById('sexbox').value;
 		sVal = sVal.toLowerCase();
 		// auto-parsing
-		if (sVal == 'male') {sVal = 'm'}
-		if (sVal == 'female') {sVal = 'f'}
-		if (sVal == 'other') {sVal = 'o'}
+		if (sVal == 'male') {sVal = 'm';}
+		if (sVal == 'female') {sVal = 'f';}
+		if (sVal == 'other') {sVal = 'o';}
 		if (sVal != 'm' && sVal != 'f' && sVal != 'o') {
 			alert("Please enter a valid sex: male/female/other (or m/f/o) designation.");
-			return
+			return;
 		}
 		allData.demo.sex = sVal;
 		showSlide("gofullscreen");
 	},
 
 	run: function() {
-		launchFullScreen(document.documentElement)
+		launchFullScreen(document.documentElement);
 		experiment.addFullscreenEvents_setupNext();
 	},
 
 	runFromDead: function() {
 		if (curTrial > 0) {curTrial = curTrial - 1;}
 		dead = false;
-		launchFullScreen(document.documentElement)
+		launchFullScreen(document.documentElement);
 		experiment.addFullscreenEvents_setupNext();
 	}
-}
+};
 
 // tracking variables
-var frameID, started, flippedTime = [], xPos = [], yPos = [], myStartX, myStartY
+var frameID, started, flippedTime = [], xPos = [], yPos = [], myStartX, myStartY;
 
 // fullscreen controller
 var dead = false;
@@ -506,15 +515,15 @@ function drawHelper() {
 	//adjust the time to 33 fps maximum
 	if (diffTime > 50) {diffTime = 50;}
 
-	flippedTime.push(time-started)
+	flippedTime.push(time-started);
 	if ((time-started) > (20000)) {
 		window.cancelAnimationFrame(frameID);
 		trial.resp(false);
-		return
+		return;
 	}
 
 	// check and move my rect if neccessary
-	checkMove(diffTime,.0001);
+	checkMove(diffTime,0.0001);
 
 	// check if we made it to the goal state
 	if (checkGoal()) {
@@ -522,8 +531,8 @@ function drawHelper() {
 		window.cancelAnimationFrame(frameID);
 		myColor = 'green';
 		render();
-		setTimeout(function() {trial.resp(true)},1000);
-		return
+		setTimeout(function() {trial.resp(true);},1000);
+		return;
 	}
 
 	// forces
@@ -548,7 +557,7 @@ function drawHelper() {
 
 function fundamentalForces(elapsedTime) {
 	if (gravity) {
-		if (tVeloc < .1) {
+		if (tVeloc < 0.1) {
 			tVeloc = tVeloc + gAccel*elapsedTime;
 		}
 	}
@@ -569,50 +578,71 @@ function checkOffscreen() {
 
 function myMove(elapsedTime) {
 	if (forcePath) {
-		// now shit gets complicated... we have to find the path that we're on and stay within it's boundaries
-		moveOnPath(elapsedTime);
+		// now shit gets complicated... we have to check what kind of movements are okay to do
+		validMoves = getValidMoves();
 	} else {
+		validMoves = [true, true, true, true];
 		myX += lVeloc*elapsedTime;
 		myY += tVeloc*elapsedTime;
 	}
+	myMoveRestricted(validMoves,tVeloc, lVeloc, elapsedTime);
+	// Add jitter if necessary
 	if (jitter) {
-		myX = myX + (Math.random() - .5) * elapsedTime / jitterStr;
-		myY = myY + (Math.random() - .5) * elapsedTime / jitterStr;
+		myMoveRestricted(validMoves, Math.random()-0.5, Math.random()-0.5, elapsedTime/jitterStr);
 	}
 }
 
-function moveOnPath(elapsedTime) {
-	// Okay... first get the coordinates of both paths
-	if (chooseGoal) {
-		// They can legally be on either path
-		pathPartC = checkPath(closeGoal.pathX,closeGoal.pathY);
-		pathPartF = checkPath(farGoal.pathX,farGoal.pathY);
-		if (pathPartC > 0) {pathPart = pathPartC;} else {pathPart = pathPartF;}
-	}	else {
-		// They can only be on one path
-		if (closeGoal.target) {
-			// They need to be on this path
-			pathPart = checkPath(closeGoal.pathX,closeGoal.pathY); 
+function myMoveRestricted(validMoves, tV, lV, elapsedTime) {
+	if (validMoves[0] && tVeloc < 0) {
+		// UP VALID
+		myY += tV*elapsedTime;
+	}
+	if (validMoves[1] && tVeloc > 0) {
+		// DOWN VALID
+		myY += tV*elapsedTime;
+	}
+	if (validMoves[2] && lVeloc < 0) {
+		// LEFT VALID
+		myX += lV*elapsedTime;
+	}
+	if (validMoves[3] && lVeloc > 0) {
+		// RIGHT VALID
+		myX += lV*elapsedTime;
+	}
+}
+
+function getValidMoves() {
+	v_u = false; v_d = false; v_l = false; v_r = false;
+	if (!firstMove) {
+		// we haven't moved yet, check which directions the path go, and restrict movements
+		if (chooseGoal) {
+			// they could be on either path
+			if (closeGoal.pathX[1] > 0) {v_r = true;} else {v_l = true;}
+			if (closeGoal.pathY[1] > 0) {v_u = true;} else {v_d = true;}
+			if (farGoal.pathX[1] > 0) {v_r = true;} else {v_l = true;}
+			if (farGoal.pathY[1] > 0) {v_u = true;} else {v_d = true;}
 		} else {
-			// They need to be on the farGoal path
-			pathPart = checkPath(farGoal.pathX,farGoal.pathY);
+			// they can only be on one path
+			if (closeGoal.target) {
+				// they are on the close goal path
+				if (closeGoal.pathX[1] > 0) {v_r = true;} else {v_l = true;}
+				if (closeGoal.pathY[1] > 0) {v_u = true;} else {v_d = true;}
+			} else {
+				// they are on the far goal path
+				if (farGoal.pathX[1] > 0) {v_r = true;} else {v_l = true;}
+				if (farGoal.pathY[1] > 0) {v_u = true;} else {v_d = true;}
+			}
+		}
+	} else {
+		// we have started moving, figure out what path we're on and return the valid directions
+		if (chooseGoal) {
+			// we're fucked, they could be on either path
+		} else {
+			// they can only be on one path, thank fucking god, just figure out what path they're on 
 		}
 	}
-}
-
-function checkPath(xs,ys) {
-	pathPart = -1;
-	for (i=1;i<4;i++) {
-		if (checkBetween(xs[i-1],ys[i-1],xs[i],ys[i])) {
-			pathPart = i;
-		}
-	}
-	return pathPart;
-}
-
-function checkBetween(x1,y1,x2,y2) {
-	// Check whether myX and myY are in between the points x1y1 and x2y2
-	return (myX > x1 - 2) && (myX < x2 +2) && (myY > y1 - 2) && (myY < y2 + 2);
+	// now return the valid directions for movement
+	return [v_u, v_d, v_l, v_r];
 }
 
 var lastRandSwitch = now();
@@ -630,12 +660,30 @@ function checkMove(elapsedTime,mult) {
 	}
 
 	leftMove = 0; topMove = 0;
-	if (k_lO || k_l) {leftMove = leftMove - elapsedTime*mult}
-	if (k_rO || k_r) {leftMove = leftMove + elapsedTime*mult}
-	if (k_uO || k_u) {topMove = topMove - elapsedTime*mult}
-	if (k_dO || k_d) {topMove = topMove + elapsedTime*mult}
+	if (k_lO || k_l) {leftMove = leftMove - elapsedTime*mult;}
+	if (k_rO || k_r) {leftMove = leftMove + elapsedTime*mult;}
+	if (k_uO || k_u) {topMove = topMove - elapsedTime*mult;}
+	if (k_dO || k_d) {topMove = topMove + elapsedTime*mult;}
 	if (!firstMove && (k_l || k_r || k_u || k_d)) {
 		firstMove = true;
+		// get the angle to each goal
+		cAng = Math.atan(closeGoal.pathY[3],closeGoal.pathX[3]);
+		fAng = Math.atan(farGoal.pathY[3],farGoal.pathX[3]);
+		x = 0; y = 0;
+		if (k_l) {x = x - 1;}
+		if (k_r) {x = x + 1;}
+		if (k_u) {y = y - 1;}
+		if (k_d) {y = y + 1;}
+		mAng = Math.atan(y,x);
+		cDiff = cAng-mAng; fDiff = fAng-mAng;
+		cDiff = (cDiff+Math.PI/2) % Math.PI - Math.PI/2;
+		fDiff = (fDiff+Math.PI/2) % Math.PI - Math.PI/2;
+		if (Math.abs(cDiff) < Math.abs(fDiff)) {
+			// close is closer
+			closeGoal.target = true;
+		} else {
+			farGoal.target = true;
+		}
 	}
 	lVeloc += leftMove;
 	tVeloc += topMove;
@@ -756,15 +804,18 @@ function setupStartPos() {
 	// setup close goal
 	closeGoal.x = closeGoal.rad*Math.sin(deg2rad(closeGoal.pos*45));
 	closeGoal.y = closeGoal.rad*Math.cos(deg2rad(closeGoal.pos*45));
-	path = createPath(0,0,closeGoal.x,closeGoal.y);
-	closeGoal.pathX = path[0];
-	closeGoal.pathY = path[1];
+	closeH = randomElement([true, false]);
+	path1 = createPath(0,0,closeGoal.x,closeGoal.y,closeH);
+	closeGoal.pathX = path1[0];
+	closeGoal.pathY = path1[1];
+	closeGoal.pathH = path1[2];
 	// far goals
 	farGoal.x = farGoal.rad*Math.sin(deg2rad(farGoal.pos*45));
 	farGoal.y = farGoal.rad*Math.cos(deg2rad(farGoal.pos*45));
-	path = createPath(0,0,farGoal.x,farGoal.y);
-	farGoal.pathX = path[0];
-	farGoal.pathY = path[1];
+	path2 = createPath(0,0,farGoal.x,farGoal.y,!closeH);
+	farGoal.pathX = path2[0];
+	farGoal.pathY = path2[1];
+	farGoal.pathH = path2[2];
 	// me 
 	myX = 0;
 	myY = 0;
@@ -810,14 +861,14 @@ var trial  = {
 	        showSlide("full-exit");
 		} else {
 			//remove the cursor
-			$(document.body).css("cursor","none")
+			$(document.body).css("cursor","none");
 			//tell the trial to start in 1s
 			setTimeout(trial.run2,1000);
 		}
 	},
 
 	run2: function() {
-		showSlide("frame")
+		showSlide("frame");
 		started = now();
 		//start the animation sequence
 		trial.draw();
@@ -834,6 +885,6 @@ var trial  = {
 			$("#resp-success").hide();
 			$("#resp-fail").show();
 		}
-		setTimeout(function() {showSlide("trial")},2000);
+		setTimeout(function() {showSlide("trial");},2000);
 	},
-}
+};
