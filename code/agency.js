@@ -349,9 +349,9 @@ var gList = [	false, 	false, 	false, 	false, 	false],
 	jList = [	false, 	false, 	false, 	false, 	false],
 	rList = [	false, 	false, 	false, 	false, 	false],
 	flList = [	false, 	false, 	false, 	false, 	false];
-var cgList= [true, true, true, true ,true],
-	fpList = [true, true, true, true ,true],
-	vaList = [true, true, true, true ,true];
+var cgList= [true, true, true, false ,false],
+	fpList = [true, false, false, false ,true],
+	vaList = [true, false, true, true ,false];
 
 var experiment = {
 
