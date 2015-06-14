@@ -539,7 +539,14 @@ function drawHelper() {
 	fundamentalForces(diffTime);
 
 	// move
-	myMove(diffTime);
+	diffs = myMove(diffTime);
+
+	// check that we didn't move off-path
+	if (forcePath && firstMove) {
+		applyMoveRestricted(diffs[0],diffs[1])
+	} else {
+		applyMove(diffs[0],diffs[1]);
+	}
 
 	// check that things aren't off-screen
 	checkOffscreen();
@@ -576,73 +583,66 @@ function checkOffscreen() {
 	if (myY > canvas.height/2-rectSize/2) {myY = canvas.height/2-rectSize/2; tVeloc = 0;}
 }
 
-function myMove(elapsedTime) {
-	if (forcePath) {
-		// now shit gets complicated... we have to check what kind of movements are okay to do
-		validMoves = getValidMoves();
+function applyMoveRestricted(dX,dY) {
+	// We're going to check whether making these dX/dY moves would take
+	// us off of a path, if it would, we won't apply it.
+	// get the current goal
+	cgoal = null;
+	if (closeGoal.target) {cgoal = closeGoal;} else if (farGoal.target) {cgoal = farGoal;}
+	if (cgoal == null) {
+		// We don't have a goal, just apply
+		applyMove(dX,dY);
 	} else {
-		validMoves = [true, true, true, true];
-		myX += lVeloc*elapsedTime;
-		myY += tVeloc*elapsedTime;
-	}
-	myMoveRestricted(validMoves,tVeloc, lVeloc, elapsedTime);
-	// Add jitter if necessary
-	if (jitter) {
-		myMoveRestricted(validMoves, Math.random()-0.5, Math.random()-0.5, elapsedTime/jitterStr);
-	}
-}
-
-function myMoveRestricted(validMoves, tV, lV, elapsedTime) {
-	if (validMoves[0] && tVeloc < 0) {
-		// UP VALID
-		myY += tV*elapsedTime;
-	}
-	if (validMoves[1] && tVeloc > 0) {
-		// DOWN VALID
-		myY += tV*elapsedTime;
-	}
-	if (validMoves[2] && lVeloc < 0) {
-		// LEFT VALID
-		myX += lV*elapsedTime;
-	}
-	if (validMoves[3] && lVeloc > 0) {
-		// RIGHT VALID
-		myX += lV*elapsedTime;
-	}
-}
-
-function getValidMoves() {
-	v_u = false; v_d = false; v_l = false; v_r = false;
-	if (!firstMove) {
-		// we haven't moved yet, check which directions the path go, and restrict movements
-		if (chooseGoal) {
-			// they could be on either path
-			if (closeGoal.pathX[1] > 0) {v_r = true;} else {v_l = true;}
-			if (closeGoal.pathY[1] > 0) {v_u = true;} else {v_d = true;}
-			if (farGoal.pathX[1] > 0) {v_r = true;} else {v_l = true;}
-			if (farGoal.pathY[1] > 0) {v_u = true;} else {v_d = true;}
-		} else {
-			// they can only be on one path
-			if (closeGoal.target) {
-				// they are on the close goal path
-				if (closeGoal.pathX[1] > 0) {v_r = true;} else {v_l = true;}
-				if (closeGoal.pathY[1] > 0) {v_u = true;} else {v_d = true;}
-			} else {
-				// they are on the far goal path
-				if (farGoal.pathX[1] > 0) {v_r = true;} else {v_l = true;}
-				if (farGoal.pathY[1] > 0) {v_u = true;} else {v_d = true;}
+		// Okay, we have a goal, figure out what path we overlap with and check whether this moves us off
+		overlap = [];
+		for(i=1;i<4;i++) {
+			sx = cgoal.pathX[i-1];
+			ex = cgoal.pathX[i];
+			sy = cgoal.pathY[i-1];
+			ey = cgoal.pathY[i];
+			// Okay, check whether we are within range of ALL of these points
+			if (contains(myX,sx,ex) && contains(myY,sy,ey)) {
+				c = 0;
+				while (!contains(myX+dX,sx,ex)) {
+					dX = dX * 0.9; c += 1;
+					if (c > 50) {dX = 0; break;}
+				}
+				c = 0;
+				while (!contains(myY+dY,sy,ey)) {
+					dY = dY * 0.9; c += 1;
+					if (c > 50) {dY = 0; break;}
+				}
+				applyMove(dX,dY);
 			}
 		}
-	} else {
-		// we have started moving, figure out what path we're on and return the valid directions
-		if (chooseGoal) {
-			// we're fucked, they could be on either path
-		} else {
-			// they can only be on one path, thank fucking god, just figure out what path they're on 
-		}
 	}
-	// now return the valid directions for movement
-	return [v_u, v_d, v_l, v_r];
+}
+
+function contains(val,min,max) {
+	// min and max could be flipped, so figure out which direction they go and then check the bounds
+	// we allow a threshold of rectSize/2 degrees of freedom
+	if (min < max) {
+		return (val > (min - rectSize/2)) && (val < (max + rectSize/2));
+	} else {
+		// max < min
+		return (val > (max - rectSize/2)) && (val < (min + rectSize/2));
+	}
+}
+
+function myMove(elapsedTime) {
+	dX = lVeloc*elapsedTime;
+	dY = tVeloc*elapsedTime;
+	// Add jitter if necessary
+	if (jitter) {
+		dX += Math.random()-0.5*elapsedTime/jitterStr;
+		dY += Math.random()-0.5*elapsedTime/jitterStr;
+	}
+	return [dX, dY];
+}
+
+function applyMove(dX, dY) {
+	myX += dX;
+	myY += dY;
 }
 
 var lastRandSwitch = now();
