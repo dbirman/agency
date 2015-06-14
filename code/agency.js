@@ -278,6 +278,9 @@ var gravity = false, friction = false, jitter = false, randControl = false, flip
 // agency manipulation vars
 var chooseGoal = false, forcePath = false, visibleAgent = false;
 var startPos;
+// Path tracking (for forcePath)
+var curPathClose = null;
+var curPathSeg = -1;
 // game settings
 var gAccel = .000025, fricVal = .00001, fricPerc = .0005, jitterStr = 10, randSwitch = 1000;
 // goal settings
@@ -379,7 +382,10 @@ var experiment = {
 			inst == 0;
 			closeGoal.pos = randomElement([0,1,2,3,4,5,6,7]);
 			farGoal.pos = randomElement([0,1,2,3,4,5,6,7]);
-			//
+			// path info
+			if (forcePath) {
+
+			}
 			if (!chooseGoal) {
 				closeGoal.target = randomElement([true, false]);
 				farGoal.target = !closeGoal.target;
@@ -562,12 +568,51 @@ function checkOffscreen() {
 }
 
 function myMove(elapsedTime) {
-	myX += lVeloc*elapsedTime;
-	myY += tVeloc*elapsedTime;
+	if (forcePath) {
+		// now shit gets complicated... we have to find the path that we're on and stay within it's boundaries
+		moveOnPath(elapsedTime);
+	} else {
+		myX += lVeloc*elapsedTime;
+		myY += tVeloc*elapsedTime;
+	}
 	if (jitter) {
 		myX = myX + (Math.random() - .5) * elapsedTime / jitterStr;
 		myY = myY + (Math.random() - .5) * elapsedTime / jitterStr;
 	}
+}
+
+function moveOnPath(elapsedTime) {
+	// Okay... first get the coordinates of both paths
+	if (chooseGoal) {
+		// They can legally be on either path
+		pathPartC = checkPath(closeGoal.pathX,closeGoal.pathY);
+		pathPartF = checkPath(farGoal.pathX,farGoal.pathY);
+		if (pathPartC > 0) {pathPart = pathPartC;} else {pathPart = pathPartF;}
+	}	else {
+		// They can only be on one path
+		if (closeGoal.target) {
+			// They need to be on this path
+			pathPart = checkPath(closeGoal.pathX,closeGoal.pathY); 
+		} else {
+			// They need to be on the farGoal path
+			pathPart = checkPath(farGoal.pathX,farGoal.pathY);
+		}
+	}
+}
+
+function checkPath(xs,ys) {
+	pathPart = -1;
+	for (i=1;i<4;i++) {
+		if (checkBetween(xs[i-1],ys[i-1],xs[i],ys[i])) {
+			pathPart = i;
+		}
+	}
+	return pathPart;
+}
+
+function checkBetween(x1,y1,x2,y2) {
+	// Check whether myX and myY are in between the points x1y1 and x2y2
+	return (myX > x1 - 2) && (myX < x2 +2) && (myY > y1 - 2) && (myY < y2 + 2);
 }
 
 var lastRandSwitch = now();

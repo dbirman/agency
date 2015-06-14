@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"app",
+				"appendTo"
+			],
+			[
 				"work",
 				"workerId"
 			],
@@ -27,6 +31,38 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "code/agency.css",
+			"settings":
+			{
+				"buffer_size": 1892,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "code/agency.html",
+			"settings":
+			{
+				"buffer_size": 4150,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "code/agency.js",
+			"settings":
+			{
+				"buffer_size": 20889,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "code/agencyIntro.html",
+			"settings":
+			{
+				"buffer_size": 2672,
+				"line_ending": "Windows"
+			}
+		}
 	],
 	"build_system": "",
 	"command_palette":
@@ -126,6 +162,13 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"closE",
+			"goalX",
+			"rectSize",
+			"closeGoal.target",
+			"createPath",
+			"createPath(",
+			"createPath",
 			"started",
 			"flippedTime",
 			"cx",
@@ -214,8 +257,116 @@
 	"groups":
 	[
 		{
+			"selected": 3,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "code/agency.css",
+					"settings":
+					{
+						"buffer_size": 1892,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CSS/CSS.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 105.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "code/agency.html",
+					"settings":
+					{
+						"buffer_size": 4150,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 780.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "code/agency.js",
+					"settings":
+					{
+						"buffer_size": 20889,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								15517,
+								15517
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 8769.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "code/agencyIntro.html",
+					"settings":
+					{
+						"buffer_size": 2672,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1751,
+								1751
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 180.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
 			]
 		}
 	],
