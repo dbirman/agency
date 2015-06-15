@@ -132,7 +132,7 @@ function exitHandler()
 	    {
   			$(document.body).css("cursor","auto");
 	    	dead = true;
-  			if (curTrial > 0) {trial.pushData(true);}
+  			if (curTrial > 0) { trial.pushData();}
 	        showSlide("full-exit");
 	    }
 	}	
@@ -668,25 +668,27 @@ function checkMove(elapsedTime,mult) {
 	if (k_rO || k_r) {leftMove = leftMove + elapsedTime*mult;}
 	if (k_uO || k_u) {topMove = topMove - elapsedTime*mult;}
 	if (k_dO || k_d) {topMove = topMove + elapsedTime*mult;}
-	if (!firstMove && (k_l || k_r || k_u || k_d)) {
-		firstMove = true;
-		// get the angle to each goal
-		cAng = Math.atan(closeGoal.pathY[3],closeGoal.pathX[3]);
-		fAng = Math.atan(farGoal.pathY[3],farGoal.pathX[3]);
-		x = 0; y = 0;
-		if (k_l) {x = x - 1;}
-		if (k_r) {x = x + 1;}
-		if (k_u) {y = y - 1;}
-		if (k_d) {y = y + 1;}
-		mAng = Math.atan(y,x);
-		cDiff = cAng-mAng; fDiff = fAng-mAng;
-		cDiff = (cDiff+Math.PI/2) % Math.PI - Math.PI/2;
-		fDiff = (fDiff+Math.PI/2) % Math.PI - Math.PI/2;
-		if (Math.abs(cDiff) < Math.abs(fDiff)) {
-			// close is closer
-			closeGoal.target = true;
-		} else {
-			farGoal.target = true;
+	if (chooseGoal) {
+		if (!firstMove && (k_l || k_r || k_u || k_d)) {
+			firstMove = true;
+			// get the angle to each goal
+			cAng = Math.atan(closeGoal.pathY[3],closeGoal.pathX[3]);
+			fAng = Math.atan(farGoal.pathY[3],farGoal.pathX[3]);
+			x = 0; y = 0;
+			if (k_l) {x = x - 1;}
+			if (k_r) {x = x + 1;}
+			if (k_u) {y = y - 1;}
+			if (k_d) {y = y + 1;}
+			mAng = Math.atan(y,x);
+			cDiff = cAng-mAng; fDiff = fAng-mAng;
+			cDiff = (cDiff+Math.PI/2) % Math.PI - Math.PI/2;
+			fDiff = (fDiff+Math.PI/2) % Math.PI - Math.PI/2;
+			if (Math.abs(cDiff) < Math.abs(fDiff)) {
+				// close is closer
+				closeGoal.target = true;
+			} else {
+				farGoal.target = true;
+			}
 		}
 	}
 	lVeloc += leftMove;
@@ -827,36 +829,34 @@ function setupStartPos() {
 
 var trial  = {
 
-	pushData: function(leftFull) {
+	pushData: function() {
 		if (ibTrial) {
+		
+			ibData = {};
+
+			ibData['intervalEst'] = intervalEst;
 
 		} else {
+			trialData = {};
 
-		trialData = {};
+			trialData['closeGoal'] = closeGoal;
+			trialData['farGoal'] = farGoal;
 
-		trialData['closeGoal'] = closeGoal;
-		trialData['farGoal'] = farGoal;
+			trialData['xPos'] = xPos;
+			trialData['yPos'] = yPos;
+			trialData['flippedTime'] = flippedTime;
 
-		trialData['xPos'] = xPos;
-		trialData['yPos'] = yPos;
-		trialData['flippedTime'] = flippedTime;
+			trialData['gravity'] = gravity;
+			trialData['friction'] = friction;
+			trialData['jitter'] = jitter;
+			trialData['randControl'] = randControl;
+			trialData['flipCons'] = flipCons;
 
+			trialData['chooseGoal'] = chooseGoal;
+			trialData['forcePath'] = forcePath;
+			trialData['visibleAgent'] = visibleAgent;
 
-var gravity = false, friction = false, jitter = false, randControl = false, flipCons = false;
-// agency manipulation vars
-var chooseGoal = false, forcePath = false, visibleAgent = false;
-
-		trialData['gravity'] = gravity;
-		trialData['friction'] = friction;
-		trialData['jitter'] = jitter;
-		trialData['randControl'] = randControl;
-		trialData['flipCons'] = flipCons;
-
-		trialData['chooseGoal'] = chooseGoal;
-		trialData['forcePath'] = forcePath;
-		trialData['visibleAgent'] = visibleAgent;
-
-		allData['trialData'].push(trialData);
+			allData['trialData'].push(trialData);
 		}
 	},
 
@@ -911,9 +911,7 @@ var chooseGoal = false, forcePath = false, visibleAgent = false;
 			alert("Please enter the elapsed time in milliseconds. If you aren't sure, make a rough guess");
 			return;
 		}
-		timeData = {};
 		//age info
-		time = document.getElementById('timebox').value;
-		timeData['timeEst'] = time;
+		intervalEst = document.getElementById('timebox').value;
 	}
 };
