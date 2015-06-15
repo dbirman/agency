@@ -264,13 +264,12 @@ if (fingerprint.screenHeight <= 700) {
 	preloadSetup();
 	$("#num-total").text(imageSrcList.length);
 	preload(imageSrcList,onLoadedAll);
-
-	var allData = {};
-	// to add a single obj
-	// allData.obj = obj;
-	// per trial:
-	// allData.trialNum = [];
 }
+
+var allData = {};
+
+allData['trialData'] = [];
+allData['ibData'] = [];
 
 // EXPERIMENT
 
@@ -280,12 +279,17 @@ var inst;
 var gravity = false, friction = false, jitter = false, randControl = false, flipCons = false;
 // agency manipulation vars
 var chooseGoal = false, forcePath = false, visibleAgent = false;
+// trial type
+var ibTrial = false, ibInterval = 0;
+//
 var startPos;
 // Path tracking (for forcePath)
 var curPathClose = null;
 var curPathSeg = -1;
-// game settings
+// game parameters
 var gAccel = 0.000025, fricVal = 0.00001, fricPerc = 0.0005, jitterStr = 10, randSwitch = 1000;
+var params = {g:gAccel,fric:fricVal,fricP:fricPerc,jitter:jitterStr,randS:randSwitch};
+allData['params'] = params;
 // goal settings
 var closeGoal = {
 	x: 0,
@@ -352,6 +356,7 @@ var gList = [	false, 	false, 	false, 	false, 	false],
 var cgList= [true, true, true, false ,false],
 	fpList = [true, false, false, false ,true],
 	vaList = [true, false, true, true ,false];
+	ibList = [false, false, false, false, false, true, true];
 
 var experiment = {
 
@@ -373,36 +378,39 @@ var experiment = {
 		curTrial = curTrial + 1;
 		// Setup the next trial based on what trial number we are on (you can also use 
 		// arrays and then pick out of the arrays using curTrial)
-		if (curTrial <= 5) {
-			// regular trial (note indexed from 0->)
-			// control variables
-			gravity = gList[curTrial-1];
-			friction = fList[curTrial-1];
-			jitter = jList[curTrial-1];
-			randControl = rList[curTrial-1];
-			flipCons = flList[curTrial-1];
-			// game variables
-			chooseGoal = cgList[curTrial-1];
-			forcePath = fpList[curTrial-1];
-			visibleAgent = vaList[curTrial-1];
-			// instructions, start location
-			inst = 0;
-			posOpts = [-.1,.1,1,1.9,2.1,3,3.9,4.1,5,5.9,6.1,7];
-			closeGoal.pos = randomElement(posOpts);
-			posOpts = posOpts.diff([closeGoal.pos,closeGoal.pos-.2,closeGoal.pos+.2]);
-			farGoal.pos = randomElement(posOpts);
-			// path info
-			if (forcePath) {
-
-			}
-			if (!chooseGoal) {
-				closeGoal.target = randomElement([true, false]);
-				farGoal.target = !closeGoal.target;
+		if (curTrial <= ibList.length()) {
+			ibTrial = ibList[curTrial-1];
+			if (ibTrial) {
+				ibInterval = randomElement(Array.range(50,1500,50)); // length of interval to estimate
 			} else {
-				closeGoal.target = false; farGoal.target = false;
+				// regular trial (note indexed from 0->)
+				// control variables
+				gravity = gList[curTrial-1];
+				friction = fList[curTrial-1];
+				jitter = jList[curTrial-1];
+				randControl = rList[curTrial-1];
+				flipCons = flList[curTrial-1];
+				// game variables
+				chooseGoal = cgList[curTrial-1];
+				forcePath = fpList[curTrial-1];
+				visibleAgent = vaList[curTrial-1];
+				// reset tracking
+				xPos = []; yPos = []; flippedTime = [];
+				// instructions, start location
+				inst = 0;
+				posOpts = [-.1,.1,1,1.9,2.1,3,3.9,4.1,5,5.9,6.1,7];
+				closeGoal.pos = randomElement(posOpts);
+				posOpts = posOpts.diff([closeGoal.pos,closeGoal.pos-.2,closeGoal.pos+.2]);
+				farGoal.pos = randomElement(posOpts);
+				if (!chooseGoal) {
+					closeGoal.target = randomElement([true, false]);
+					farGoal.target = !closeGoal.target;
+				} else {
+					closeGoal.target = false; farGoal.target = false;
+				}
+				// track first movement (for visibleAgent)
+				firstMove = false;
 			}
-			// track first movement (for visibleAgent)
-			firstMove = false;
 		} else {
 			experiment.end();
 			return;
@@ -413,17 +421,13 @@ var experiment = {
 
 	showInstructions: function() {
 		showSlide("trial_instructions");
-		if (inst==1) {
+		if (ibTrial) {
+			if (curTrial==6) {$("#inst_warning").show();}
 			$("#inst").hide();
 			$("#inst_reaper").show();
 		} else {
 			$("#inst").show();
 			$("#inst_reaper").hide();
-		}
-		if (curTrial==3) {
-			$("#inst_warning").show();
-		} else {
-			$("#inst_warning").hide();
 		}
 	},
 
@@ -495,7 +499,7 @@ var experiment = {
 };
 
 // tracking variables
-var frameID, started, flippedTime = [], xPos = [], yPos = [], myStartX, myStartY;
+var frameID, started, flippedTime = [], xPos = [], yPos = [];
 
 // fullscreen controller
 var dead = false;
@@ -824,23 +828,36 @@ function setupStartPos() {
 var trial  = {
 
 	pushData: function(leftFull) {
-		// things you might want to use:
-		// flippedTime
-		// myStartX
-		// myStartY
-		// goalX
-		// goalY
-		// xPos
-		// yPos
-		// gravity
-		// friction
-		// jitter
-		// randControl
-		// flipCons (flipControls)
+		if (ibTrial) {
 
-		// things that are redundant if you track the above:
-		// startPos
-		// myStartPos
+		} else {
+
+		trialData = {};
+
+		trialData['closeGoal'] = closeGoal;
+		trialData['farGoal'] = farGoal;
+
+		trialData['xPos'] = xPos;
+		trialData['yPos'] = yPos;
+		trialData['flippedTime'] = flippedTime;
+
+
+var gravity = false, friction = false, jitter = false, randControl = false, flipCons = false;
+// agency manipulation vars
+var chooseGoal = false, forcePath = false, visibleAgent = false;
+
+		trialData['gravity'] = gravity;
+		trialData['friction'] = friction;
+		trialData['jitter'] = jitter;
+		trialData['randControl'] = randControl;
+		trialData['flipCons'] = flipCons;
+
+		trialData['chooseGoal'] = chooseGoal;
+		trialData['forcePath'] = forcePath;
+		trialData['visibleAgent'] = visibleAgent;
+
+		allData['trialData'].push(trialData);
+		}
 	},
 
 	resetRects: function() {
@@ -887,4 +904,16 @@ var trial  = {
 		}
 		setTimeout(function() {showSlide("trial");},2000);
 	},
+
+	ib_resp: function() {
+		// they pressed the button, check the input
+		if (document.getElementById('timebox').value=="") {
+			alert("Please enter the elapsed time in milliseconds. If you aren't sure, make a rough guess");
+			return;
+		}
+		timeData = {};
+		//age info
+		time = document.getElementById('timebox').value;
+		timeData['timeEst'] = time;
+	}
 };

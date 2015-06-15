@@ -68,7 +68,7 @@
 	<div class="slide multi-parent" id="trial_instructions">
 		<div class="centerbox">
 			<p class="bolded" id="inst_warning">STOP! THE INSTRUCTIONS MAY HAVE CHANGED: PLEASE READ CAREFULLY!!</p>
-			<p class='block-text' id="inst_reaper">not implemented.</p>
+			<p class='block-text' id="inst_reaper">On the next trial, estimate how long the time interval between the two color changes is.</p>
 			<p class="block-text" id="inst">On the next trial, use the arrow keys to move the red box onto the blue box. Do your best to succeed, your time is limited.</p>
 			<button type="button" onclick="this.blur(); experiment.ready()">I'm Ready</button>
 		</div>
@@ -86,6 +86,16 @@
 		<div class="centerbox">
 			<p class="block-text" id="resp-success">Nice job!</p>
 			<p class="block-text" id="resp-fail">Good try, you can get it next round!</p>
+		</div>
+
+	</div>
+
+	<!-- Response page (can also require user input) -->
+	<div class="slide multi-parent" id="ib_response">
+		<div class="centerbox">
+			<p class="block-text" id="resp-text">How long was the interval between the two color changes? (In milliseconds)</p>
+			Interval (ms): <input type=number id="timebox"><br>
+			<button type="button" onclick="this.blur(); trial.ib_resp()">Continue</button>
 		</div>
 
 	</div>
