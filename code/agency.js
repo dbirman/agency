@@ -526,41 +526,49 @@ function drawHelper() {
 		return;
 	}
 
-	// check and move my rect if neccessary
-	checkMove(diffTime,0.0001);
+	// From here on we do different things depending on the trial type
 
-	// check if we made it to the goal state
-	if (checkGoal()) {
-		visibleAgent = true;
-		window.cancelAnimationFrame(frameID);
-		myColor = 'green';
-		render();
-		setTimeout(function() {trial.resp(true);},1000);
-		return;
-	}
-
-	// forces
-	fundamentalForces(diffTime);
-
-	// move
-	diffs = myMove(diffTime);
-
-	// check that we didn't move off-path
-	if (forcePath && firstMove) {
-		applyMoveRestricted(diffs[0],diffs[1])
+	if (ibTrial) {
+		// deal with intentional binding trials
 	} else {
-		applyMove(diffs[0],diffs[1]);
-	}
+		// regular trials
 
-	// check that things aren't off-screen
-	checkOffscreen();
+		// check and move my rect if neccessary
+		checkMove(diffTime,0.0001);
+
+		// check if we made it to the goal state
+		if (checkGoal()) {
+			visibleAgent = true;
+			window.cancelAnimationFrame(frameID);
+			myColor = 'green';
+			render();
+			setTimeout(function() {trial.resp(true);},1000);
+			return;
+		}
+
+		// forces
+		fundamentalForces(diffTime);
+
+		// move
+		diffs = myMove(diffTime);
+
+		// check that we didn't move off-path
+		if (forcePath && firstMove) {
+			applyMoveRestricted(diffs[0],diffs[1])
+		} else {
+			applyMove(diffs[0],diffs[1]);
+		}
+
+		// check that things aren't off-screen
+		checkOffscreen();
+
+		// tracking
+		xPos.push(myX);
+		yPos.push(myY);
+	}
 
 	// draw stuff
 	render();
-
-	// tracking
-	xPos.push(myX);
-	yPos.push(myY);
 	
 	// next draw
 	frameID = window.requestAnimationFrame(drawHelper);
@@ -719,11 +727,19 @@ var rectSize = 25;
 
 function render() {
 	ctx.clearRect(0,0,canvas.width,canvas.height);
-	renderPath();
-	renderGoal();
-	if (visibleAgent || !firstMove) {
-		renderMy();
+	if (ibTrial) {
+		renderFlash();
+	} else {
+		renderPath();
+		renderGoal();
+		if (visibleAgent || !firstMove) {
+			renderMy();
+		}
 	}
+}
+
+function renderFlash() {
+	cColor = 'yellow';
 }
 
 function renderGoal() {
