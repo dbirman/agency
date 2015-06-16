@@ -413,8 +413,7 @@ var experiment = {
 				inst = 0;
 				posOpts = [1,2,4,5,7,8,10,11];
 				closeGoal.pos = randomElement(posOpts);
-				posOpts = posOpts.diff([closeGoal.pos,closeGoal.pos-.2,closeGoal.pos+.2]);
-				farGoal.pos = randomElement(posOpts);
+				farGoal.pos = (closeGoal.pos + 6) % 12;
 				if (!chooseGoal) {
 					closeGoal.target = randomElement([true, false]);
 					farGoal.target = !closeGoal.target;
@@ -452,8 +451,19 @@ var experiment = {
 		if (!dead) {
 			if (curTrial > 0) {
 				// Die on trial 3 and go to preview screen
-				if (curTrial == 3 && opener.turk.previewMode) {
-					experiment.end();
+				if (curTrial == 3) {
+					try {
+						if (opener.turk.previewMode()) {
+							experiment.end();
+						} else {
+							trial.pushData(false);
+							showSlide("trial");
+						}
+					} catch(err) {
+						// probably opener.turk isn't defined 
+						trial.pushData(false);
+						showSlide("trial");
+					}
 				} else {
 					trial.pushData(false);
 					showSlide("trial");
@@ -699,27 +709,25 @@ function checkMove(elapsedTime,mult) {
 	if (k_rO || k_r) {leftMove = leftMove + elapsedTime*mult;}
 	if (k_uO || k_u) {topMove = topMove - elapsedTime*mult;}
 	if (k_dO || k_d) {topMove = topMove + elapsedTime*mult;}
-	if (chooseGoal) {
-		if (!firstMove && (k_l || k_r || k_u || k_d)) {
-			firstMove = true;
-			// get the angle to each goal
-			cAng = Math.atan(closeGoal.pathY[3],closeGoal.pathX[3]);
-			fAng = Math.atan(farGoal.pathY[3],farGoal.pathX[3]);
-			x = 0; y = 0;
-			if (k_l) {x = x - 1;}
-			if (k_r) {x = x + 1;}
-			if (k_u) {y = y - 1;}
-			if (k_d) {y = y + 1;}
-			mAng = Math.atan(y,x);
-			cDiff = cAng-mAng; fDiff = fAng-mAng;
-			cDiff = (cDiff+Math.PI/2) % Math.PI - Math.PI/2;
-			fDiff = (fDiff+Math.PI/2) % Math.PI - Math.PI/2;
-			if (Math.abs(cDiff) < Math.abs(fDiff)) {
-				// close is closer
-				closeGoal.target = true;
-			} else {
-				farGoal.target = true;
-			}
+	if (chooseGoal && !firstMove && (k_l || k_r || k_u || k_d)) {
+		firstMove = true;
+		// get the angle to each goal
+		cAng = Math.atan(closeGoal.pathY[3],closeGoal.pathX[3]);
+		fAng = Math.atan(farGoal.pathY[3],farGoal.pathX[3]);
+		x = 0; y = 0;
+		if (k_l) {x = x - 1;}
+		if (k_r) {x = x + 1;}
+		if (k_u) {y = y - 1;}
+		if (k_d) {y = y + 1;}
+		mAng = Math.atan(y/x);
+		cDiff = cAng-mAng; fDiff = fAng-mAng;
+		cDiff = (cDiff+Math.PI/2) % Math.PI - Math.PI/2;
+		fDiff = (fDiff+Math.PI/2) % Math.PI - Math.PI/2;
+		if (Math.abs(cDiff) < Math.abs(fDiff)) {
+			// close is closer
+			closeGoal.target = true;
+		} else {
+			farGoal.target = true;
 		}
 	}
 	lVeloc += leftMove;
@@ -727,15 +735,13 @@ function checkMove(elapsedTime,mult) {
 }
 
 function checkGoal() {
-	if (chooseGoal) {return cgHelper(closeGoal.x,closeGoal.y) || cgHelper(farGoal.x,farGoal.y);}
-	else {
-		if (closeGoal.target) {
-			return cgHelper(closeGoal.x,closeGoal.y);
-		} else {
-			return cgHelper(farGoal.x, farGoal.y);
-		}
+	if (closeGoal.target) {
+		return cgHelper(closeGoal.x,closeGoal.y);
+	} else if (farGoal.target) {
+		return cgHelper(farGoal.x, farGoal.y);
 	}
 }
+
 function cgHelper(gX, gY) {
 	return (myX > gX - rectSize && myX < gX + rectSize) &&
 		(myY > gY - rectSize && myY < gY + rectSize);
