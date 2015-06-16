@@ -280,7 +280,7 @@ var gravity = false, friction = false, jitter = false, randControl = false, flip
 // agency manipulation vars
 var chooseGoal = false, forcePath = false, visibleAgent = false;
 // trial type
-var ibTrial = false, ibInterval = 0;
+var ibTrial = false, ibInterval = []; ibLength = 7000;
 //
 var startPos;
 // Path tracking (for forcePath)
@@ -358,6 +358,16 @@ var cgList= [true, true, true, false ,false],
 	vaList = [true, false, true, true ,false];
 	ibList = [false, false, false, false, false, true, true];
 
+// var gList = [	false	],
+// 	fList = [	true 	],
+// 	jList = [	false 	],
+// 	rList = [	false	],
+// 	flList = [	false 	];
+// var cgList= [true ],
+// 	fpList = [true],
+// 	vaList = [true ];
+// 	ibList = [ true];
+
 var experiment = {
 
 	end: function() {
@@ -378,10 +388,13 @@ var experiment = {
 		curTrial = curTrial + 1;
 		// Setup the next trial based on what trial number we are on (you can also use 
 		// arrays and then pick out of the arrays using curTrial)
-		if (curTrial <= ibList.length()) {
+		if (curTrial <= ibList.length) {
 			ibTrial = ibList[curTrial-1];
 			if (ibTrial) {
-				ibInterval = randomElement(Array.range(50,1500,50)); // length of interval to estimate
+				ibStart = randomElement(Array.range(250,5000));
+				flipOne = randomElement(Array.range(0,750,50)); // length of interval to estimate
+				flipTwo = randomElement(Array.range(0,750,50)); // length of interval to estimate
+				ibInterval = [ibStart, ibStart+flipOne, ibStart+flipOne+flipTwo];
 			} else {
 				// regular trial (note indexed from 0->)
 				// control variables
@@ -520,16 +533,26 @@ function drawHelper() {
 	if (diffTime > 50) {diffTime = 50;}
 
 	flippedTime.push(time-started);
-	if ((time-started) > (20000)) {
-		window.cancelAnimationFrame(frameID);
-		trial.resp(false);
-		return;
+	// Stop conditions
+	if (ibTrial) {
+		if ((time-started) > ibLength) {
+			window.cancelAnimationFrame(frameID);
+			trial.ib_getresp();
+			return;
+		}
+	} else {
+		if ((time-started) > 20000) {
+			window.cancelAnimationFrame(frameID);
+			trial.resp(false);
+			return;
+		}
 	}
 
 	// From here on we do different things depending on the trial type
 
 	if (ibTrial) {
 		// deal with intentional binding trials
+		// do nothing... everything happens in render
 	} else {
 		// regular trials
 
@@ -739,7 +762,35 @@ function render() {
 }
 
 function renderFlash() {
-	cColor = 'yellow';
+	elapsed = now() - started;
+	if (elapsed < ibInterval[0]) {
+		// We are at the start, color = red
+		cColor = 'red';
+	} else if (elapsed < ibInterval[1]) {
+		// Still haven't passed, color = red
+		cColor = 'red';
+	} else if (elapsed < ibInterval[2]) {
+		// We are in the color change part, color = green
+		cColor = 'green';
+	} else {
+		// trial end, color = red
+		cColor = 'red';
+	}
+	drawCircle(0,0,cColor);
+}
+
+function drawCircle(x,y,color) {
+	switch (color) {
+		case 'red':
+			ctx.fillStyle = "#FF0000"; break;
+		case 'green':
+			ctx.fillStyle = "#00FF00"; break;
+		case 'blue':
+			ctx.fillStyle = "#0000FF"; break;
+	}
+	ctx.beginPath();
+	ctx.arc(cen2canx(x),cen2cany(y),50,0,2*Math.PI);
+	ctx.fill();
 }
 
 function renderGoal() {
@@ -850,8 +901,10 @@ var trial  = {
 		
 			ibData = {};
 
+			ibData['intervals'] = ibInterval;
 			ibData['intervalEst'] = intervalEst;
 
+			allData['ibData'].push(ibData);
 		} else {
 			trialData = {};
 
@@ -918,7 +971,14 @@ var trial  = {
 			$("#resp-success").hide();
 			$("#resp-fail").show();
 		}
-		setTimeout(function() {showSlide("trial");},2000);
+		setTimeout(function() {experiment.setupNext();},2000);
+	},
+
+	ib_getresp: function() {
+		$(document.body).css("cursor","auto");
+		showSlide("ib_response");
+		$("resp-text").show();
+		$("timebox").show();
 	},
 
 	ib_resp: function() {
@@ -929,5 +989,6 @@ var trial  = {
 		}
 		//age info
 		intervalEst = document.getElementById('timebox').value;
+		experiment.setupNext();
 	}
 };
