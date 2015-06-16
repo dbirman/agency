@@ -411,7 +411,7 @@ var experiment = {
 				xPos = []; yPos = []; flippedTime = [];
 				// instructions, start location
 				inst = 0;
-				posOpts = [-.1,.1,1,1.9,2.1,3,3.9,4.1,5,5.9,6.1,7];
+				posOpts = [1,2,4,5,7,8,10,11];
 				closeGoal.pos = randomElement(posOpts);
 				posOpts = posOpts.diff([closeGoal.pos,closeGoal.pos-.2,closeGoal.pos+.2]);
 				farGoal.pos = randomElement(posOpts);
@@ -875,16 +875,16 @@ function deg2rad(deg) {
 
 function setupStartPos() {
 	// setup close goal
-	closeGoal.x = closeGoal.rad*Math.sin(deg2rad(closeGoal.pos*45));
-	closeGoal.y = closeGoal.rad*Math.cos(deg2rad(closeGoal.pos*45));
+	closeGoal.x = closeGoal.rad*Math.sin(deg2rad(closeGoal.pos*30));
+	closeGoal.y = closeGoal.rad*Math.cos(deg2rad(closeGoal.pos*30));
 	closeH = randomElement([true, false]);
 	path1 = createPath(0,0,closeGoal.x,closeGoal.y,closeH);
 	closeGoal.pathX = path1[0];
 	closeGoal.pathY = path1[1];
 	closeGoal.pathH = path1[2];
 	// far goals
-	farGoal.x = farGoal.rad*Math.sin(deg2rad(farGoal.pos*45));
-	farGoal.y = farGoal.rad*Math.cos(deg2rad(farGoal.pos*45));
+	farGoal.x = farGoal.rad*Math.sin(deg2rad(farGoal.pos*30));
+	farGoal.y = farGoal.rad*Math.cos(deg2rad(farGoal.pos*30));
 	path2 = createPath(0,0,farGoal.x,farGoal.y,!closeH);
 	farGoal.pathX = path2[0];
 	farGoal.pathY = path2[1];
