@@ -280,7 +280,8 @@ var gravity = false, friction = false, jitter = false, randControl = false, flip
 // agency manipulation vars
 var chooseGoal = false, forcePath = false, visibleAgent = false;
 // trial type
-var ibTrial = false, ibInterval = []; ibLength = 7000;
+var ibColorList = ['red','yellow','green','blue','purple','teal','black'];
+var ibTrial = false, ibInterval = []; ibLength = 7000; ibColors = [];
 //
 var startPos;
 // Path tracking (for forcePath)
@@ -395,6 +396,9 @@ var experiment = {
 				flipOne = randomElement(Array.range(0,750,50)); // length of interval to estimate
 				flipTwo = randomElement(Array.range(0,750,50)); // length of interval to estimate
 				ibInterval = [ibStart, ibStart+flipOne, ibStart+flipOne+flipTwo];
+				ibColors = [randomElement(ibColorList)];
+				ibColors.push(randomElement(ibColorList.splice(ibColorList.indexOf(ibColors[0]))));
+				ibColors.push(randomElement(ibColorList.splice(ibColorList.indexOf(ibColors[0])).splice(ibColorList.indexOf(ibColors[1]))));
 			} else {
 				// regular trial (note indexed from 0->)
 				// control variables
@@ -650,12 +654,12 @@ function applyMoveRestricted(dX,dY) {
 				c = 0;
 				while (!contains(myX+dX,sx,ex)) {
 					dX = dX * 0.9; c += 1;
-					if (c > 50) {dX = 0; break;}
+					if (c > 10) {dX = 0; break;}
 				}
 				c = 0;
 				while (!contains(myY+dY,sy,ey)) {
 					dY = dY * 0.9; c += 1;
-					if (c > 50) {dY = 0; break;}
+					if (c > 10) {dY = 0; break;}
 				}
 				applyMove(dX,dY);
 			}
@@ -712,8 +716,8 @@ function checkMove(elapsedTime,mult) {
 	if (chooseGoal && !firstMove && (k_l || k_r || k_u || k_d)) {
 		firstMove = true;
 		// get the angle to each goal
-		cAng = Math.atan(closeGoal.pathY[3],closeGoal.pathX[3]);
-		fAng = Math.atan(farGoal.pathY[3],farGoal.pathX[3]);
+		cAng = Math.atan(closeGoal.pathY[3]/closeGoal.pathX[3]);
+		fAng = Math.atan(farGoal.pathY[3]/farGoal.pathX[3]);
 		x = 0; y = 0;
 		if (k_l) {x = x - 1;}
 		if (k_r) {x = x + 1;}
@@ -759,7 +763,7 @@ function render() {
 	if (ibTrial) {
 		renderFlash();
 	} else {
-		renderPath();
+		if (forcePath) {renderPath();}
 		renderGoal();
 		if (visibleAgent || !firstMove) {
 			renderMy();
@@ -769,34 +773,45 @@ function render() {
 
 function renderFlash() {
 	elapsed = now() - started;
-	if (elapsed < ibInterval[0]) {
+	if (elapsed < ibInterval[1]) {
 		// We are at the start, color = red
-		cColor = 'red';
-	} else if (elapsed < ibInterval[1]) {
-		// Still haven't passed, color = red
-		cColor = 'red';
+		cColor = ibColors[0]
 	} else if (elapsed < ibInterval[2]) {
 		// We are in the color change part, color = green
-		cColor = 'green';
+		cColor = ibColors[1];
 	} else {
 		// trial end, color = red
-		cColor = 'red';
+		cColor = ibColors[2];
 	}
 	drawCircle(0,0,cColor);
 }
 
 function drawCircle(x,y,color) {
-	switch (color) {
-		case 'red':
-			ctx.fillStyle = "#FF0000"; break;
-		case 'green':
-			ctx.fillStyle = "#00FF00"; break;
-		case 'blue':
-			ctx.fillStyle = "#0000FF"; break;
-	}
+	ctx.fillStyle = parseColor(color);
 	ctx.beginPath();
 	ctx.arc(cen2canx(x),cen2cany(y),50,0,2*Math.PI);
 	ctx.fill();
+}
+
+function parseColor(color) {
+	switch (color) {
+		case 'red':
+			return "#FF0000";
+		case 'green':
+			return "#00FF00";
+		case 'blue':
+			return "#0000FF";
+		case 'yellow':
+			return "#FFFF00";
+		case 'teal':
+			return "#00FFFF";
+		case 'purple':
+			return "#FF00FF";
+		case 'black':
+			return "#000000";
+		case 'white':
+			return "#FFFFFF";
+	}
 }
 
 function renderGoal() {
@@ -815,8 +830,8 @@ function renderMy() {
 }
 
 function renderPath() {
-	drawPath(closeGoal.pathX,closeGoal.pathY,'black');
-	drawPath(farGoal.pathX,farGoal.pathY,'black');
+	drawPath(closeGoal.pathX,closeGoal.pathY,closeGoal.pathH,'black');
+	drawPath(farGoal.pathX,farGoal.pathY,farGoal.pathH,'black');
 }
 
 // given a 0,0 centered coordinate, returns the canvas coordinate
@@ -827,49 +842,87 @@ function cen2cany(y) {
 	return canvas.height/2+y;
 }
 
-function drawPath(pathX,pathY,color) {
-	switch (color) {
-		case 'red':
-			ctx.strokeStyle = "#FF0000"; break;
-		case 'green':
-			ctx.strokeStyle = "#00FF00"; break;
-		case 'blue':
-			ctx.strokeStyle = "#0000FF"; break;
-		case 'black':
-			ctx.strokeStyle = "#000000"; break;
-	}
+// computes the difference of arrays r and n elementwise
+function arrayDiff(r,n){if(!r.length==n.length)throw new Error("unequal array lengths");for(a3=[],i=0;i<r.length;i++)a3.push(r[i]-n[i]);return a3}
+function arrayMult(r,n){if(!r.length==n.length)throw new Error("unequal array lengths");for(a3=[],i=0;i<r.length;i++)a3.push(r[i]*n[i]);return a3}
+
+function drawPath(pathX,pathY,pathH,color) {
+	ctx.strokeStyle = parseColor(color);
 	ctx.lineWidth = "2";
+	// First figure out what quadrant we are going into
+	quadrant=pathX[3]>pathX[0]?pathY[3]<pathY[0]?1:2:pathY[3]<pathY[0]?4:3;
+
+	inv = [-1,-1,-1,-1];
+	modX1 = [0,-rectSize,-rectSize,0];
+	modY1 = [-rectSize,-rectSize,-rectSize,-rectSize];
+	pathX1 = []; pathY1 = []; pathX2 = []; pathY2 = []; modX = []; modY = [];
+	switch (quadrant) {
+		case 1:
+			// now we do different things if we are going vert or horz first
+			if (pathH[0]) {
+				modX = modX1;
+				modY = modY1;
+			} else {
+				modY = modX1;
+				modX = modY1;			
+			}
+			break;
+		case 2:
+			if (pathH[0]) {
+				modX = modX1;
+				modY = arrayMult(modY1,inv);
+			} else {
+				modY = modX1;
+				modX = arrayMult(modY1,inv);
+			}
+			break;
+		case 3:
+			if (pathH[0]) {
+				modX = arrayMult(modX1,inv);
+				modY = arrayMult(modY1,inv);
+			} else {
+				modY = arrayMult(modX1,inv);
+				modX = arrayMult(modY1,inv);
+			}
+			break;
+		case 4:
+			if (pathH[0]) {
+				modX = arrayMult(modX1,inv);
+				modY = modY1;
+			} else {
+				modY = arrayMult(modX1,inv);
+				modX = modY1;
+			}
+			break;
+	}
+	pathX1 = arrayDiff(pathX,modX);
+	pathX2 = arrayDiff(pathX,arrayMult(modX,inv));
+	pathY1 = arrayDiff(pathY,modY);
+	pathY2 = arrayDiff(pathY,arrayMult(modY,inv));
+
 	ctx.beginPath();
-	ctx.moveTo(cen2canx(pathX[0]),cen2cany(pathY[0]));
+	ctx.moveTo(cen2canx(pathX1[0]),cen2cany(pathY1[0]));
 	for (i=1;i<4;i++) {
-		// iterate across path locations
-		ctx.lineTo(cen2canx(pathX[i]),cen2cany(pathY[i]));
+		ctx.lineTo(cen2canx(pathX1[i]),cen2cany(pathY1[i]));
+	}
+	ctx.stroke();
+
+	ctx.beginPath();
+	ctx.moveTo(cen2canx(pathX2[0]),cen2cany(pathY2[0]));
+	for (i=1;i<4;i++) {
+		ctx.lineTo(cen2canx(pathX2[i]),cen2cany(pathY2[i]));
 	}
 	ctx.stroke();
 }
 
-function drawOpenRect(cx,cy,xs,ys,cflag) {
-	switch (cflag) {
-		case 'red':
-			ctx.strokeStyle = "#FF0000"; break;
-		case 'green':
-			ctx.strokeStyle = "#00FF00"; break;
-		case 'blue':
-			ctx.strokeStyle = "#0000FF"; break;
-	}
+function drawOpenRect(cx,cy,xs,ys,color) {
+	ctx.strokeStyle = parseColor(color);
 	ctx.lineWidth = "1";
 	ctx.strokeRect(cen2canx(cx)-xs/2,cen2cany(cy)-ys/2,xs,ys);
 }
 
-function drawRect(cx,cy,xs,ys,cflag) {
-	switch (cflag) {
-		case 'red':
-			ctx.fillStyle = "#FF0000"; break;
-		case 'green':
-			ctx.fillStyle = "#00FF00"; break;
-		case 'blue':
-			ctx.fillStyle = "#0000FF"; break;
-	}
+function drawRect(cx,cy,xs,ys,color) {
+	ctx.fillStyle = parseColor(color);
 	ctx.fillRect(cen2canx(cx)-xs/2,cen2cany(cy)-ys/2,xs,ys);
 }
 
