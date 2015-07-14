@@ -278,7 +278,7 @@ var inst;
 // game vars
 var gravity = false, friction = false, jitter = false, randControl = false, flipCons = false;
 // agency manipulation vars
-var chooseGoal = false, forcePath = false, visibleAgent = false;
+var chooseGoal = false, forcePath = false, autoMove = false;
 // trial type
 var ibColorList = ['red','yellow','green','blue','purple','teal','black'];
 var ibTrial = false, ibInterval = []; ibLength = 7000; ibColors = [];
@@ -349,15 +349,19 @@ createPath = function(sX, sY, eX, eY, horiz) {
 
 // trial by trial settings (just for debugging)
 //           	1 		2 		3 		4 		5
-var gList = [	false, 	false, 	false, 	false, 	false],
-	fList = [	true, 	true, 	true, 	true, 	true],
-	jList = [	false, 	false, 	false, 	false, 	false],
-	rList = [	false, 	false, 	false, 	false, 	false],
-	flList = [	false, 	false, 	false, 	false, 	false];
-var cgList= [true, true, true, false ,false],
-	fpList = [true, false, false, false ,true],
-	vaList = [true, false, true, true ,false];
-	ibList = [false, false, false, false, false, true, true];
+// var gList = [	false, 	false, 	false, 	false, 	false],
+// 	fList = [	true, 	true, 	true, 	true, 	true],
+// 	jList = [	false, 	false, 	false, 	false, 	false],
+// 	rList = [	false, 	false, 	false, 	false, 	false],
+// 	flList = [	false, 	false, 	false, 	false, 	false];
+// var cgList= [true, true, true, false ,false],
+// 	fpList = [true, false, false, false ,true],
+// 	amList = [false, true, false, false ,true];
+// 	ibList = [false, false, false, false, false, true, true];
+// var firstIbTrial = 6;
+
+var ibList = [true, true];
+var firstIbTrial = 1;
 
 // var gList = [	false	],
 // 	fList = [	true 	],
@@ -396,9 +400,11 @@ var experiment = {
 				flipOne = randomElement(Array.range(0,750,50)); // length of interval to estimate
 				flipTwo = randomElement(Array.range(0,750,50)); // length of interval to estimate
 				ibInterval = [ibStart, ibStart+flipOne, ibStart+flipOne+flipTwo];
+				sl = ibColorList;
 				ibColors = [randomElement(ibColorList)];
 				ibColors.push(randomElement(ibColorList.splice(ibColorList.indexOf(ibColors[0]))));
 				ibColors.push(randomElement(ibColorList.splice(ibColorList.indexOf(ibColors[0])).splice(ibColorList.indexOf(ibColors[1]))));
+				ibColorList = sl;
 			} else {
 				// regular trial (note indexed from 0->)
 				// control variables
@@ -410,7 +416,8 @@ var experiment = {
 				// game variables
 				chooseGoal = cgList[curTrial-1];
 				forcePath = fpList[curTrial-1];
-				visibleAgent = vaList[curTrial-1];
+				autoMove = amList[curTrial-1];
+				automoving = false;
 				// reset tracking
 				xPos = []; yPos = []; flippedTime = [];
 				// instructions, start location
@@ -424,7 +431,7 @@ var experiment = {
 				} else {
 					closeGoal.target = false; farGoal.target = false;
 				}
-				// track first movement (for visibleAgent)
+				// track first movement
 				firstMove = false;
 			}
 		} else {
@@ -438,7 +445,7 @@ var experiment = {
 	showInstructions: function() {
 		showSlide("trial_instructions");
 		if (ibTrial) {
-			if (curTrial==6) {$("#inst_warning").show();}
+			if (curTrial==firstIbTrial) {$("#inst_warning").show();}
 			$("#inst").hide();
 			$("#inst_reaper").show();
 		} else {
@@ -575,7 +582,6 @@ function drawHelper() {
 
 		// check if we made it to the goal state
 		if (checkGoal()) {
-			visibleAgent = true;
 			window.cancelAnimationFrame(frameID);
 			myColor = 'green';
 			render();
@@ -590,10 +596,14 @@ function drawHelper() {
 		diffs = myMove(diffTime);
 
 		// check that we didn't move off-path
-		if (forcePath && firstMove) {
-			applyMoveRestricted(diffs[0],diffs[1])
+		if (automoving) {
+			applyAutoMove();
 		} else {
-			applyMove(diffs[0],diffs[1]);
+			if (forcePath && firstMove) {
+				applyMoveRestricted(diffs[0],diffs[1])
+			} else {
+				applyMove(diffs[0],diffs[1]);
+			}
 		}
 
 		// check that things aren't off-screen
@@ -630,6 +640,25 @@ function checkOffscreen() {
 	if (myY < rectSize/2-canvas.height/2) {myY = rectSize/2-canvas.height/2; tVeloc = 0;}
 	if (myX > canvas.width/2-rectSize/2) {myX = canvas.width/2-rectSize/2; lVeloc = 0;}
 	if (myY > canvas.height/2-rectSize/2) {myY = canvas.height/2-rectSize/2; tVeloc = 0;}
+}
+
+function applyAutoMove() {
+	cgoal = null;
+	if (closeGoal.target) {cgoal = closeGoal;} else if (farGoal.target) {cgoal = farGoal;}
+
+	pathX = cgoal.pathX; pathY = cgoal.pathY;
+
+	if (forcePath) {
+		// move, stay on path
+	} else {
+		// minimize distance to target
+		moveX = cgoal.pathX[3] - myX;
+		moveY = cgoal.pathY[3] - myY;
+		ratio = moveY/moveX;
+		dY = ratio * 1;
+		dX = 1 / ratio;
+		applyMove(dX,dY);
+	}
 }
 
 function applyMoveRestricted(dX,dY) {
@@ -696,6 +725,7 @@ function applyMove(dX, dY) {
 
 var lastRandSwitch = now();
 var k_lO, k_dO, k_uO, k_rO;
+var automoving = false;
 
 function checkMove(elapsedTime,mult) {
 	if (randControl) {
@@ -715,6 +745,7 @@ function checkMove(elapsedTime,mult) {
 	if (k_dO || k_d) {topMove = topMove + elapsedTime*mult;}
 	if (chooseGoal && !firstMove && (k_l || k_r || k_u || k_d)) {
 		firstMove = true;
+		if (autoMove) {automoving = true};
 		// get the angle to each goal
 		cAng = Math.atan(closeGoal.pathY[3]/closeGoal.pathX[3]);
 		fAng = Math.atan(farGoal.pathY[3]/farGoal.pathX[3]);
@@ -765,7 +796,7 @@ function render() {
 	} else {
 		if (forcePath) {renderPath();}
 		renderGoal();
-		if (visibleAgent || !firstMove) {
+		if (true || !firstMove) {
 			renderMy();
 		}
 	}
@@ -962,6 +993,7 @@ var trial  = {
 
 			ibData['intervals'] = ibInterval;
 			ibData['intervalEst'] = intervalEst;
+			ibData['ibColors'] = ibColors;
 
 			allData['ibData'].push(ibData);
 		} else {
@@ -982,7 +1014,7 @@ var trial  = {
 
 			trialData['chooseGoal'] = chooseGoal;
 			trialData['forcePath'] = forcePath;
-			trialData['visibleAgent'] = visibleAgent;
+			trialData['autoMove'] = autoMove;
 
 			allData['trialData'].push(trialData);
 		}
