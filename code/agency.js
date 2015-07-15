@@ -663,7 +663,7 @@ function applyAutoMove(elapsedTime) {
 		if (sec < 3) {
 			nX = pX[sec+1];
 			nY = pY[sec+1];
-			if (myX == nX && myY == nY) {
+			if (approxEqual(myX,nX) && approxEqual(myY,nY)) {
 				curSec = curSec + 1;
 			}
 			moveX = nX - myX;
@@ -680,6 +680,10 @@ function applyAutoMove(elapsedTime) {
 		dX = Math.min(moveX,1)*elapsedTime/1000*pixPerSec;
 		applyMove(dX,dY);
 	}
+}
+
+function approxEqual(a,b) {
+	return a >= b-.01 && a <= b + .01
 }
 
 function applyMoveRestricted(dX,dY) {
