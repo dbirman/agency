@@ -715,33 +715,20 @@ function applyMoveRestricted(dX,dY) {
 		applyMove(dX,dY);
 	} else {
 		// Okay, we have a goal, figure out what path we overlap with and check whether this moves us off
-		aX = 0;
-		aY = 0;
-		for(i=0;i<3;i++) {
+		legal = false;
+		for(i=0;i<4;i++) {
 			sx = cgoal.pathX[i];
 			ex = cgoal.pathX[i+1];
 			sy = cgoal.pathY[i];
 			ey = cgoal.pathY[i+1];
 			// Okay, check whether we are within range of ALL of these points
-			if (contains(myX,sx,ex) && contains(myY,sy,ey)) {
-				c = 0;
-				cdX = dX; cdY = dY;
-				while (!contains(myX+cdX,sx,ex)) {
-					cdX = cdX * 0.9; c += 1;
-					if (c > 10) {cdX = 0; break;}
-				}
-				c = 0;
-				while (!contains(myY+cdY,sy,ey)) {
-					cdY = cdY * 0.9; c += 1;
-					if (c > 10) {cdY = 0; break;}
-				}
-				aX += cdX;
-				aY += cdY;
+			if (contains(myX+dX,sx,ex) && contains(myY+dY,sy,ey)) {
+				legal = true;
 			}
 		}
-		if (aX<dX) {dX = aX;}
-		if (aY<dY) {dY = aY;}
-		applyMove(dX,dY);
+		if (legal) {
+			applyMove(dX,dY);
+		}
 	}
 }
 
@@ -796,6 +783,9 @@ function checkMove(elapsedTime,mult) {
 	if (k_rO || k_r) {leftMove = leftMove + elapsedTime*mult;}
 	if (k_uO || k_u) {topMove = topMove - elapsedTime*mult;}
 	if (k_dO || k_d) {topMove = topMove + elapsedTime*mult;}
+	lVeloc += leftMove;
+	tVeloc += topMove;
+
 	if (chooseGoal && !firstMove && (k_l || k_r || k_u || k_d)) {
 		firstMove = true;
 		if (autoMove) {automoving = true; curSec = 0;};
@@ -817,8 +807,6 @@ function checkMove(elapsedTime,mult) {
 			farGoal.target = true;
 		}
 	}
-	lVeloc += leftMove;
-	tVeloc += topMove;
 }
 
 function checkGoal() {
