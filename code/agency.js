@@ -280,7 +280,6 @@ var gravity = false, friction = false, jitter = false, randControl = false, flip
 // agency manipulation vars
 var chooseGoal = false, forcePath = false, autoMove = false;
 // trial type
-var ibColorList = ['red','yellow','green','blue','purple','teal','black'];
 var ibTrial = false, ibInterval = []; ibLength = 7000; ibColors = [];
 //
 var startPos;
@@ -295,6 +294,7 @@ allData['params'] = params;
 var closeGoal = {
 	x: 0,
 	y: 0,
+	quad: 0,
 	rad: 150,
 	pos: -1,
 	color: 'blue',
@@ -307,6 +307,7 @@ var closeGoal = {
 var farGoal = {
 	x: 0,
 	y: 0,
+	quad: 0,
 	rad: 250,
 	pos: -1,
 	color: 'blue',
@@ -326,7 +327,7 @@ createPath = function(sX, sY, eX, eY, horiz) {
 	if (horiz) {
 		// start horizontal
 		dist = eX - sX; // total distance to travel
-		breakPoint = randomElement(Array.range(rectSize,dist-(rectSize+1),1));
+		breakPoint = randomElement(Array.range(rectSize/2,dist-(rectSize/2),1));
 		pathX.push(sX+breakPoint);
 		pathX.push(sX+breakPoint);
 		pathY.push(sY);
@@ -335,7 +336,7 @@ createPath = function(sX, sY, eX, eY, horiz) {
 	} else {
 		// start vertical
 		dist = eY - sY; // total distance to travel
-		breakPoint = randomElement(Array.range(rectSize,dist-(rectSize+1),1));
+		breakPoint = randomElement(Array.range(rectSize/2,dist-(rectSize/2),1));
 		pathY.push(sY+breakPoint);
 		pathY.push(sY+breakPoint);
 		pathX.push(sX);
@@ -349,19 +350,18 @@ createPath = function(sX, sY, eX, eY, horiz) {
 
 // trial by trial settings (just for debugging)
 //           	1 		2 		3 		4 		5
-// var gList = [	false, 	false, 	false, 	false, 	false],
-// 	fList = [	true, 	true, 	true, 	true, 	true],
-// 	jList = [	false, 	false, 	false, 	false, 	false],
-// 	rList = [	false, 	false, 	false, 	false, 	false],
-// 	flList = [	false, 	false, 	false, 	false, 	false];
-// var cgList= [true, true, true, false ,false],
+// var cgList= [true, true, true, true , true],
 // 	fpList = [true, false, false, false ,true],
-// 	amList = [false, true, false, false ,true];
-// 	ibList = [false, false, false, false, false, true, true];
-// var firstIbTrial = 6;
+// 	amList = [true, true, false, false ,true];
+	ibList = [false, false, false, false, false, false, false, false, false, false, true, true, true, true, true];
+var firstIbTrial = 11;
 
-var ibList = [true, true];
-var firstIbTrial = 1;
+// var ibList = [true, true];
+// var firstIbTrial = 1;
+
+chooseGoalType = randomElement([true,false]);
+forcePathType = randomElement([true,false]);
+automoveType = randomElement([true,false]);
 
 // var gList = [	false	],
 // 	fList = [	true 	],
@@ -396,23 +396,22 @@ var experiment = {
 		if (curTrial <= ibList.length) {
 			ibTrial = ibList[curTrial-1];
 			if (ibTrial) {
-				ibStart = randomElement(Array.range(250,5000));
+				ibStart = randomElement(Array.range(250,5000,50));
 				flipOne = randomElement(Array.range(0,750,50)); // length of interval to estimate
-				flipTwo = randomElement(Array.range(0,750,50)); // length of interval to estimate
+				flipTwo = randomElement(Array.range(250,1000,50));
 				ibInterval = [ibStart, ibStart+flipOne, ibStart+flipOne+flipTwo];
-				sl = ibColorList;
-				ibColors = [randomElement(ibColorList)];
-				ibColors.push(randomElement(ibColorList.splice(ibColorList.indexOf(ibColors[0]))));
-				ibColors.push(randomElement(ibColorList.splice(ibColorList.indexOf(ibColors[0])).splice(ibColorList.indexOf(ibColors[1]))));
-				ibColorList = sl;
+				ibColorList = ['red','yellow','green','blue','purple','teal','black'];
+				shuff = shuffleArray(ibColorList);
+				ibColors = [shuff[0],shuff[1],shuff[2]];
+				document.getElementById('timebox').value="";
 			} else {
 				// regular trial (note indexed from 0->)
 				// control variables
-				gravity = gList[curTrial-1];
-				friction = fList[curTrial-1];
-				jitter = jList[curTrial-1];
-				randControl = rList[curTrial-1];
-				flipCons = flList[curTrial-1];
+				gravity = false;
+				friction = true;
+				jitter = false;
+				randControl = false;
+				flipCons = false;
 				// game variables
 				chooseGoal = cgList[curTrial-1];
 				forcePath = fpList[curTrial-1];
@@ -422,9 +421,12 @@ var experiment = {
 				xPos = []; yPos = []; flippedTime = [];
 				// instructions, start location
 				inst = 0;
-				posOpts = [1,2,4,5,7,8,10,11];
+				posOpts = [1,3,5,7];
+				quads = [2, 2, 1, 1, 4, 4, 3, 3];
 				closeGoal.pos = randomElement(posOpts);
-				farGoal.pos = (closeGoal.pos + 6) % 12;
+				closeGoal.quad = quads[closeGoal.pos];
+				farGoal.pos = (closeGoal.pos + 4) % 8;
+				farGoal.quad = quads[farGoal.pos];
 				if (!chooseGoal) {
 					closeGoal.target = randomElement([true, false]);
 					farGoal.target = !closeGoal.target;
@@ -641,6 +643,9 @@ function checkOffscreen() {
 	if (myX > canvas.width/2-rectSize/2) {myX = canvas.width/2-rectSize/2; lVeloc = 0;}
 	if (myY > canvas.height/2-rectSize/2) {myY = canvas.height/2-rectSize/2; tVeloc = 0;}
 }
+function sign(x) { return x > 0 ? 1 : x < 0 ? -1 : 0; }
+
+var curSec = 0;
 
 function applyAutoMove() {
 	cgoal = null;
@@ -650,13 +655,28 @@ function applyAutoMove() {
 
 	if (forcePath) {
 		// move, stay on path
+		pX = cgoal.pathX; pY = cgoal.pathY;
+		// Figure out where we are
+		sec = curSec;
+		if (sec < 3) {
+			nX = pX[sec+1];
+			nY = pY[sec+1];
+			if (myX == nX && myY == nY) {
+				curSec = curSec + 1;
+			}
+			moveX = nX - myX;
+			moveY = nY - myY;
+			dY = sign(moveY)*Math.min(Math.abs(moveY),1);
+			dX = sign(moveX)*Math.min(Math.abs(moveX),1);
+			applyMove(dX,dY);
+		}
 	} else {
 		// minimize distance to target
 		moveX = cgoal.pathX[3] - myX;
 		moveY = cgoal.pathY[3] - myY;
 		ratio = moveY/moveX;
-		dY = ratio * 1;
-		dX = 1 / ratio;
+		dY = Math.min(moveY,1);
+		dX = Math.min(moveX,1)
 		applyMove(dX,dY);
 	}
 }
@@ -700,10 +720,10 @@ function contains(val,min,max) {
 	// min and max could be flipped, so figure out which direction they go and then check the bounds
 	// we allow a threshold of rectSize/2 degrees of freedom
 	if (min < max) {
-		return (val > (min - rectSize/2)) && (val < (max + rectSize/2));
+		return (val >= (min - rectSize/2)) && (val <= (max + rectSize/2));
 	} else {
 		// max < min
-		return (val > (max - rectSize/2)) && (val < (min + rectSize/2));
+		return (val >= (max - rectSize/2)) && (val <= (min + rectSize/2));
 	}
 }
 
@@ -727,6 +747,10 @@ var lastRandSwitch = now();
 var k_lO, k_dO, k_uO, k_rO;
 var automoving = false;
 
+function unique(value, index, self) { 
+    return self.indexOf(value) === index;
+}
+
 function checkMove(elapsedTime,mult) {
 	if (randControl) {
 		if ((now() - lastRandSwitch) > randSwitch) {
@@ -745,20 +769,19 @@ function checkMove(elapsedTime,mult) {
 	if (k_dO || k_d) {topMove = topMove + elapsedTime*mult;}
 	if (chooseGoal && !firstMove && (k_l || k_r || k_u || k_d)) {
 		firstMove = true;
-		if (autoMove) {automoving = true};
-		// get the angle to each goal
-		cAng = Math.atan(closeGoal.pathY[3]/closeGoal.pathX[3]);
-		fAng = Math.atan(farGoal.pathY[3]/farGoal.pathX[3]);
-		x = 0; y = 0;
-		if (k_l) {x = x - 1;}
-		if (k_r) {x = x + 1;}
-		if (k_u) {y = y - 1;}
-		if (k_d) {y = y + 1;}
-		mAng = Math.atan(y/x);
-		cDiff = cAng-mAng; fDiff = fAng-mAng;
-		cDiff = (cDiff+Math.PI/2) % Math.PI - Math.PI/2;
-		fDiff = (fDiff+Math.PI/2) % Math.PI - Math.PI/2;
-		if (Math.abs(cDiff) < Math.abs(fDiff)) {
+		if (autoMove) {automoving = true; curSec = 0;};
+		// pick based on quadrants
+
+		quadOpts = [];
+
+		if (k_r) {quadOpts.push(1);quadOpts.push(2);}
+		if (k_l) {quadOpts.push(3);quadOpts.push(4);}
+		if (k_d) {quadOpts.push(2);quadOpts.push(3);}
+		if (k_u) {quadOpts.push(4);quadOpts.push(1);}
+
+		uqOpts = quadOpts.filter(unique);
+
+		if (uqOpts.indexOf(closeGoal.quad)>=0) {
 			// close is closer
 			closeGoal.target = true;
 		} else {
@@ -804,10 +827,10 @@ function render() {
 
 function renderFlash() {
 	elapsed = now() - started;
-	if (elapsed < ibInterval[1]) {
+	if (elapsed < ibInterval[0]) {
 		// We are at the start, color = red
 		cColor = ibColors[0]
-	} else if (elapsed < ibInterval[2]) {
+	} else if (elapsed < ibInterval[1]) {
 		// We are in the color change part, color = green
 		cColor = ibColors[1];
 	} else {
@@ -965,16 +988,16 @@ function deg2rad(deg) {
 
 function setupStartPos() {
 	// setup close goal
-	closeGoal.x = closeGoal.rad*Math.sin(deg2rad(closeGoal.pos*30));
-	closeGoal.y = closeGoal.rad*Math.cos(deg2rad(closeGoal.pos*30));
+	closeGoal.x = closeGoal.rad*Math.sin(deg2rad(closeGoal.pos*45));
+	closeGoal.y = closeGoal.rad*Math.cos(deg2rad(closeGoal.pos*45));
 	closeH = randomElement([true, false]);
 	path1 = createPath(0,0,closeGoal.x,closeGoal.y,closeH);
 	closeGoal.pathX = path1[0];
 	closeGoal.pathY = path1[1];
 	closeGoal.pathH = path1[2];
 	// far goals
-	farGoal.x = farGoal.rad*Math.sin(deg2rad(farGoal.pos*30));
-	farGoal.y = farGoal.rad*Math.cos(deg2rad(farGoal.pos*30));
+	farGoal.x = farGoal.rad*Math.sin(deg2rad(farGoal.pos*45));
+	farGoal.y = farGoal.rad*Math.cos(deg2rad(farGoal.pos*45));
 	path2 = createPath(0,0,farGoal.x,farGoal.y,!closeH);
 	farGoal.pathX = path2[0];
 	farGoal.pathY = path2[1];
@@ -992,6 +1015,7 @@ var trial  = {
 			ibData = {};
 
 			ibData['intervals'] = ibInterval;
+			ibData['interval'] = ibInterval[1]-ibInterval[0];
 			ibData['intervalEst'] = intervalEst;
 			ibData['ibColors'] = ibColors;
 
