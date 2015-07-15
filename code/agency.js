@@ -327,7 +327,7 @@ createPath = function(sX, sY, eX, eY, horiz) {
 	if (horiz) {
 		// start horizontal
 		dist = eX - sX; // total distance to travel
-		breakPoint = randomElement(Array.range(rectSize/2,dist-(rectSize/2),1));
+		breakPoint = randomElement(Array.range(rectSize,dist-rectSize,1));
 		pathX.push(sX+breakPoint);
 		pathX.push(sX+breakPoint);
 		pathY.push(sY);
@@ -336,7 +336,7 @@ createPath = function(sX, sY, eX, eY, horiz) {
 	} else {
 		// start vertical
 		dist = eY - sY; // total distance to travel
-		breakPoint = randomElement(Array.range(rectSize/2,dist-(rectSize/2),1));
+		breakPoint = randomElement(Array.range(rectSize,dist-rectSize,1));
 		pathY.push(sY+breakPoint);
 		pathY.push(sY+breakPoint);
 		pathX.push(sX);
@@ -705,11 +705,11 @@ function applyMoveRestricted(dX,dY) {
 		// Okay, we have a goal, figure out what path we overlap with and check whether this moves us off
 		dX_adj = [];
 		dY_adj = [];
-		for(i=1;i<4;i++) {
-			sx = cgoal.pathX[i-1];
-			ex = cgoal.pathX[i];
-			sy = cgoal.pathY[i-1];
-			ey = cgoal.pathY[i];
+		for(i=0;i<3;i++) {
+			sx = cgoal.pathX[i];
+			ex = cgoal.pathX[i+1];
+			sy = cgoal.pathY[i];
+			ey = cgoal.pathY[i+1];
 			// Okay, check whether we are within range of ALL of these points
 			if (contains(myX,sx,ex) && contains(myY,sy,ey)) {
 				c = 0;
@@ -726,6 +726,10 @@ function applyMoveRestricted(dX,dY) {
 				dX_adj.push(cdX);
 				dY_adj.push(cdY);
 			}
+		}
+		if (dX_adj.length == 1 && dY_adj.length == 1) {
+			applyMove(dX_adj[0],dY_adj[0]);
+			return
 		}
 		if (dX_adj.indexOf(0) >= 0 && dY_adj.indexOf(0) >= 0) {
 			applyMove(dX,dY);
@@ -1025,6 +1029,8 @@ function setupStartPos() {
 	myX = 0;
 	myY = 0;
 }
+
+var intervalEst = -100;
 
 var trial  = {
 
