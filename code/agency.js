@@ -740,6 +740,7 @@ function myMove(elapsedTime) {
 }
 
 function applyMove(dX, dY) {
+	if (!firstMove) {firstMove = true;}
 	myX += dX;
 	myY += dY;
 }
