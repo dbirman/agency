@@ -363,6 +363,10 @@ chooseGoalType = randomElement([true,false]);
 forcePathType = randomElement([true,false]);
 automoveType = randomElement([true,false]);
 
+chooseGoalType = true;
+automoveType = false;
+forcePathType = true;
+
 // var gList = [	false	],
 // 	fList = [	true 	],
 // 	jList = [	false 	],
