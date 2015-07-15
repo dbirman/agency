@@ -653,11 +653,10 @@ function applyAutoMove(elapsedTime) {
 	cgoal = null;
 	if (closeGoal.target) {cgoal = closeGoal;} else if (farGoal.target) {cgoal = farGoal;}
 
-	pathX = cgoal.pathX; pathY = cgoal.pathY;
+	pX = cgoal.pathX; pY = cgoal.pathY;
 
 	if (forcePath) {
 		// move, stay on path
-		pX = cgoal.pathX; pY = cgoal.pathY;
 		// Figure out where we are
 		sec = curSec;
 		if (sec < 3) {
@@ -665,6 +664,7 @@ function applyAutoMove(elapsedTime) {
 			nY = pY[sec+1];
 			if (approxEqual(myX,nX) && approxEqual(myY,nY)) {
 				curSec = curSec + 1;
+				return
 			}
 			moveX = nX - myX;
 			moveY = nY - myY;
@@ -674,10 +674,10 @@ function applyAutoMove(elapsedTime) {
 		}
 	} else {
 		// minimize distance to target
-		moveX = cgoal.pathX[3] - myX;
-		moveY = cgoal.pathY[3] - myY;
-		dY = Math.min(moveY,1)*elapsedTime/1000*pixPerSec;
-		dX = Math.min(moveX,1)*elapsedTime/1000*pixPerSec;
+		moveX = pX[3] - myX;
+		moveY = pY[3] - myY;
+		dY = sign(moveY)*Math.min(Math.abs(moveY),1)*elapsedTime/1000*pixPerSec;
+		dX = sign(moveX)*Math.min(Math.abs(moveX),1)*elapsedTime/1000*pixPerSec;
 		applyMove(dX,dY);
 	}
 }
