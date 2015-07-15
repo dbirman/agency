@@ -724,7 +724,6 @@ function applyMoveRestricted(dX,dY) {
 			ey = cgoal.pathY[i+1];
 			// Okay, check whether we are within range of ALL of these points
 			if (contains(myX,sx,ex) && contains(myY,sy,ey)) {
-				paths_on.push(i);
 				c = 0;
 				cdX = dX; cdY = dY;
 				while (!contains(myX+cdX,sx,ex)) {
