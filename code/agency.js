@@ -688,6 +688,10 @@ function approxEqual(a,b) {
 	return a >= b-.01 && a <= b + .01
 }
 
+function listMean(list) {
+	sum = 
+}
+
 function applyMoveRestricted(dX,dY) {
 	// We're going to check whether making these dX/dY moves would take
 	// us off of a path, if it would, we won't apply it.
@@ -699,7 +703,8 @@ function applyMoveRestricted(dX,dY) {
 		applyMove(dX,dY);
 	} else {
 		// Okay, we have a goal, figure out what path we overlap with and check whether this moves us off
-		overlap = [];
+		dX_adj = [];
+		dY_adj = [];
 		for(i=1;i<4;i++) {
 			sx = cgoal.pathX[i-1];
 			ex = cgoal.pathX[i];
@@ -708,17 +713,24 @@ function applyMoveRestricted(dX,dY) {
 			// Okay, check whether we are within range of ALL of these points
 			if (contains(myX,sx,ex) && contains(myY,sy,ey)) {
 				c = 0;
-				while (!contains(myX+dX,sx,ex)) {
-					dX = dX * 0.9; c += 1;
-					if (c > 10) {dX = 0; break;}
+				cdX = dX; cdY = dY;
+				while (!contains(myX+cdX,sx,ex)) {
+					cdX = cdX * 0.9; c += 1;
+					if (c > 10) {cdX = 0; break;}
 				}
 				c = 0;
-				while (!contains(myY+dY,sy,ey)) {
-					dY = dY * 0.9; c += 1;
-					if (c > 10) {dY = 0; break;}
+				while (!contains(myY+cdY,sy,ey)) {
+					cdY = cdY * 0.9; c += 1;
+					if (c > 10) {cdY = 0; break;}
 				}
-				applyMove(dX,dY);
+				dX_adj.push(cdX);
+				dY_adj.push(cdY);
 			}
+		}
+		if (dX_adj.includes(0) && dY_adj.includes(0)) {
+			applyMove(dX,dY);
+		} else {
+			return
 		}
 	}
 }
