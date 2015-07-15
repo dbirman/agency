@@ -668,16 +668,16 @@ function applyAutoMove(elapsedTime) {
 			}
 			moveX = nX - myX;
 			moveY = nY - myY;
-			dY = sign(moveY)*Math.min(Math.abs(moveY),1)*elapsedTime/1000/pixPerSec;
-			dX = sign(moveX)*Math.min(Math.abs(moveX),1)*elapsedTime/1000/pixPerSec;
+			dY = sign(moveY)*Math.min(Math.abs(moveY),1)*elapsedTime/1000*pixPerSec;
+			dX = sign(moveX)*Math.min(Math.abs(moveX),1)*elapsedTime/1000*pixPerSec;
 			applyMove(dX,dY);
 		}
 	} else {
 		// minimize distance to target
 		moveX = cgoal.pathX[3] - myX;
 		moveY = cgoal.pathY[3] - myY;
-		dY = Math.min(moveY,1)*elapsedTime/1000/pixPerSec;
-		dX = Math.min(moveX,1)*elapsedTime/1000/pixPerSec;
+		dY = Math.min(moveY,1)*elapsedTime/1000*pixPerSec;
+		dX = Math.min(moveX,1)*elapsedTime/1000*pixPerSec;
 		applyMove(dX,dY);
 	}
 }
