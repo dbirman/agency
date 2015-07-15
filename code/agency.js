@@ -600,7 +600,7 @@ function drawHelper() {
 
 		// check that we didn't move off-path
 		if (automoving) {
-			applyAutoMove();
+			applyAutoMove(diffTime);
 		} else {
 			if (forcePath) {
 				applyMoveRestricted(diffs[0],diffs[1])
@@ -647,8 +647,9 @@ function checkOffscreen() {
 function sign(x) { return x > 0 ? 1 : x < 0 ? -1 : 0; }
 
 var curSec = 0;
+var pixPerSec = 100;
 
-function applyAutoMove() {
+function applyAutoMove(elapsedTime) {
 	cgoal = null;
 	if (closeGoal.target) {cgoal = closeGoal;} else if (farGoal.target) {cgoal = farGoal;}
 
@@ -667,17 +668,16 @@ function applyAutoMove() {
 			}
 			moveX = nX - myX;
 			moveY = nY - myY;
-			dY = sign(moveY)*Math.min(Math.abs(moveY),1);
-			dX = sign(moveX)*Math.min(Math.abs(moveX),1);
+			dY = sign(moveY)*Math.min(Math.abs(moveY),1)*elapsedTime/1000/pixPerSec;
+			dX = sign(moveX)*Math.min(Math.abs(moveX),1)*elapsedTime/1000/pixPerSec;
 			applyMove(dX,dY);
 		}
 	} else {
 		// minimize distance to target
 		moveX = cgoal.pathX[3] - myX;
 		moveY = cgoal.pathY[3] - myY;
-		ratio = moveY/moveX;
-		dY = Math.min(moveY,1);
-		dX = Math.min(moveX,1)
+		dY = Math.min(moveY,1)*elapsedTime/1000/pixPerSec;
+		dX = Math.min(moveX,1)*elapsedTime/1000/pixPerSec;
 		applyMove(dX,dY);
 	}
 }
