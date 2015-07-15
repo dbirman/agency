@@ -447,7 +447,7 @@ var experiment = {
 	showInstructions: function() {
 		showSlide("trial_instructions");
 		if (ibTrial) {
-			if (curTrial==firstIbTrial) {$("#inst_warning").show();}
+			if (curTrial==firstIbTrial) {$("#inst_warning").show();} else {$("#inst_warning").hide();}
 			$("#inst").hide();
 			$("#inst_reaper").show();
 		} else {
