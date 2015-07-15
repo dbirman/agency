@@ -889,8 +889,8 @@ function renderMy() {
 }
 
 function renderPath() {
-	drawPath(closeGoal.pathX,closeGoal.pathY,closeGoal.pathH,'black');
-	drawPath(farGoal.pathX,farGoal.pathY,farGoal.pathH,'black');
+	if (closeGoal.target) {drawPath(closeGoal.pathX,closeGoal.pathY,closeGoal.pathH,'black');}
+	if (farGoal.target) {drawPath(farGoal.pathX,farGoal.pathY,farGoal.pathH,'black');}
 }
 
 // given a 0,0 centered coordinate, returns the canvas coordinate
