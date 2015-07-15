@@ -692,8 +692,16 @@ function approxEqual(a,b) {
 	return a >= b-.01 && a <= b + .01
 }
 
-function listMean(list) {
-	
+function mean(arr) { // it's ok to use short variable names in short, simple functions
+    // set all variables at the top, because of variable hoisting
+    var i,
+        sum = 0, // try to use informative names, not "num"
+        len = arr.length; // cache arr.length because accessing it is usually expensive
+    for (i = 0; i < len; i++) { // arrays start at 0 and go to array.length - 1
+        sum += arr[i]; // short for "sum = sum + arr[i];"
+    } // always use brackets. It'll save you headaches in the long run
+    // don't mash your computation and presentation together; return the result.
+    return sum / len;
 }
 
 function applyMoveRestricted(dX,dY) {
@@ -709,6 +717,7 @@ function applyMoveRestricted(dX,dY) {
 		// Okay, we have a goal, figure out what path we overlap with and check whether this moves us off
 		dX_adj = [];
 		dY_adj = [];
+		paths_on = [];
 		for(i=0;i<3;i++) {
 			sx = cgoal.pathX[i];
 			ex = cgoal.pathX[i+1];
@@ -716,6 +725,7 @@ function applyMoveRestricted(dX,dY) {
 			ey = cgoal.pathY[i+1];
 			// Okay, check whether we are within range of ALL of these points
 			if (contains(myX,sx,ex) && contains(myY,sy,ey)) {
+				paths_on.push(i);
 				c = 0;
 				cdX = dX; cdY = dY;
 				while (!contains(myX+cdX,sx,ex)) {
@@ -731,14 +741,14 @@ function applyMoveRestricted(dX,dY) {
 				dY_adj.push(cdY);
 			}
 		}
-		if (dX_adj.length == 1 && dY_adj.length == 1) {
+		if (paths_on.length==1) {
 			applyMove(dX_adj[0],dY_adj[0]);
-			return
-		}
-		if (dX_adj.indexOf(0) >= 0 && dY_adj.indexOf(0) >= 0) {
+		} else if (dX_adj.indexOf(0) < 0 && dY_adj.indexOf(0) < 0) {
+			applyMove(dX,dY);
+		} else if (mean(dX_adj) > 0 && mean(dY_adj) > 0) {
 			applyMove(dX,dY);
 		} else {
-			return
+			applyMove(mean(dX_adj),mean(dY_adj));
 		}
 	}
 }
