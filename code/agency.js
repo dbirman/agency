@@ -689,7 +689,7 @@ function approxEqual(a,b) {
 }
 
 function listMean(list) {
-	sum = 
+	
 }
 
 function applyMoveRestricted(dX,dY) {
