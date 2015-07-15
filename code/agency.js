@@ -413,9 +413,9 @@ var experiment = {
 				randControl = false;
 				flipCons = false;
 				// game variables
-				chooseGoal = cgList[curTrial-1];
-				forcePath = fpList[curTrial-1];
-				autoMove = amList[curTrial-1];
+				chooseGoal = chooseGoalType;
+				forcePath = forcePathType;
+				autoMove = automoveType;
 				automoving = false;
 				// reset tracking
 				xPos = []; yPos = []; flippedTime = [];
