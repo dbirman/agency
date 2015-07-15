@@ -715,9 +715,8 @@ function applyMoveRestricted(dX,dY) {
 		applyMove(dX,dY);
 	} else {
 		// Okay, we have a goal, figure out what path we overlap with and check whether this moves us off
-		dX_adj = [];
-		dY_adj = [];
-		paths_on = [];
+		aX = 0;
+		aY = 0;
 		for(i=0;i<3;i++) {
 			sx = cgoal.pathX[i];
 			ex = cgoal.pathX[i+1];
@@ -737,19 +736,13 @@ function applyMoveRestricted(dX,dY) {
 					cdY = cdY * 0.9; c += 1;
 					if (c > 10) {cdY = 0; break;}
 				}
-				dX_adj.push(cdX);
-				dY_adj.push(cdY);
+				aX += cdX;
+				aY += cdY;
 			}
 		}
-		if (paths_on.length==1) {
-			applyMove(dX_adj[0],dY_adj[0]);
-		} else if (dX_adj.indexOf(0) < 0 && dY_adj.indexOf(0) < 0) {
-			applyMove(dX,dY);
-		} else if (mean(dX_adj) > 0 && mean(dY_adj) > 0) {
-			applyMove(dX,dY);
-		} else {
-			applyMove(mean(dX_adj),mean(dY_adj));
-		}
+		if (aX<dX) {dX = aX;}
+		if (aY<dY) {dY = aY;}
+		applyMove(dX,dY);
 	}
 }
 
