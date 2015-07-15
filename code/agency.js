@@ -535,6 +535,8 @@ var experiment = {
 	}
 };
 
+var maxTime = 7500;
+
 // tracking variables
 var frameID, started, flippedTime = [], xPos = [], yPos = [];
 
@@ -565,7 +567,7 @@ function drawHelper() {
 			return;
 		}
 	} else {
-		if ((time-started) > 20000) {
+		if ((time-started) > maxTime) {
 			window.cancelAnimationFrame(frameID);
 			trial.resp(false);
 			return;
@@ -1045,6 +1047,8 @@ var trial  = {
 			trialData['forcePath'] = forcePath;
 			trialData['autoMove'] = autoMove;
 
+			trialData['maxTime'] = maxTime;
+
 			allData['trialData'].push(trialData);
 		}
 	},
@@ -1085,9 +1089,11 @@ var trial  = {
 		$(document.body).css("cursor","auto");
 		showSlide("response");
 		if (success) {
+			maxTime -= 333;
 			$("#resp-success").show();
 			$("#resp-fail").hide();
 		} else {
+			maxTime += 1000;
 			$("#resp-success").hide();
 			$("#resp-fail").show();
 		}
