@@ -727,7 +727,7 @@ function applyMoveRestricted(dX,dY) {
 				dY_adj.push(cdY);
 			}
 		}
-		if (dX_adj.includes(0) && dY_adj.includes(0)) {
+		if (dX_adj.indexOf(0) >= 0 && dY_adj.indexOf(0) >= 0) {
 			applyMove(dX,dY);
 		} else {
 			return
