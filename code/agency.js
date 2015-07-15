@@ -451,6 +451,7 @@ var experiment = {
 			$("#inst").hide();
 			$("#inst_reaper").show();
 		} else {
+			$("#inst_warning").hide();
 			$("#inst").show();
 			$("#inst_reaper").hide();
 		}
