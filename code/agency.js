@@ -602,7 +602,7 @@ function drawHelper() {
 		if (automoving) {
 			applyAutoMove();
 		} else {
-			if (forcePath && firstMove) {
+			if (forcePath) {
 				applyMoveRestricted(diffs[0],diffs[1])
 			} else {
 				applyMove(diffs[0],diffs[1]);
@@ -740,7 +740,6 @@ function myMove(elapsedTime) {
 }
 
 function applyMove(dX, dY) {
-	if (!firstMove) {firstMove = true;}
 	myX += dX;
 	myY += dY;
 }
