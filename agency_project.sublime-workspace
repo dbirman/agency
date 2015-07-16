@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"dY",
+				"display"
+			],
+			[
 				"app",
 				"appendTo"
 			],
@@ -43,16 +47,16 @@
 			"file": "code/agency.html",
 			"settings":
 			{
-				"buffer_size": 4150,
-				"line_ending": "Windows"
+				"buffer_size": 4725,
+				"line_ending": "Unix"
 			}
 		},
 		{
 			"file": "code/agency.js",
 			"settings":
 			{
-				"buffer_size": 20889,
-				"line_ending": "Windows"
+				"buffer_size": 28870,
+				"line_ending": "Unix"
 			}
 		},
 		{
@@ -65,9 +69,14 @@
 		}
 	],
 	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
 	"command_palette":
 	{
 		"height": 0.0,
+		"last_filter": "",
 		"selected_items":
 		[
 		],
@@ -75,7 +84,10 @@
 	},
 	"console":
 	{
-		"height": 0.0
+		"height": 0.0,
+		"history":
+		[
+		]
 	},
 	"distraction_free":
 	{
@@ -148,7 +160,7 @@
 	],
 	"find":
 	{
-		"height": 34.0
+		"height": 35.0
 	},
 	"find_in_files":
 	{
@@ -162,6 +174,50 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"forcePath",
+			"createPAth",
+			"good try",
+			"intervalEst",
+			"intervalEst =",
+			"intervalEst",
+			".contains",
+			".includes",
+			"applyMoveRest",
+			"maxTime",
+			"applyautomove",
+			"rad",
+			"rad=",
+			"rad =",
+			".rad",
+			"applyMove",
+			"forcePath",
+			".show()",
+			"cgList",
+			"ibInterval =",
+			"ibInterval",
+			"quad",
+			"40",
+			"farGoal.target",
+			"farGoal",
+			"closeGoal.pos",
+			"automoving",
+			"ibColorList = ",
+			"ibColors = ",
+			"applyMoveRe",
+			"automoving",
+			"x0",
+			"autoMove = ",
+			"visibleAgent",
+			"vaList",
+			"setTimeout",
+			"window.requestAnimationFrame",
+			"window.request",
+			"window =",
+			"randomElement",
+			"showSlide",
+			"veloc = 0",
+			"ibInterval =",
+			"ibInterval",
 			"closE",
 			"goalX",
 			"rectSize",
@@ -257,12 +313,13 @@
 	"groups":
 	[
 		{
-			"selected": 3,
+			"selected": 2,
 			"sheets":
 			[
 				{
 					"buffer": 0,
 					"file": "code/agency.css",
+					"semi_transient": false,
 					"settings":
 					{
 						"buffer_size": 1892,
@@ -272,8 +329,8 @@
 						"selection":
 						[
 							[
-								0,
-								0
+								759,
+								759
 							]
 						],
 						"settings":
@@ -281,25 +338,27 @@
 							"syntax": "Packages/CSS/CSS.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 105.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
 					"buffer": 1,
 					"file": "code/agency.html",
+					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4150,
+						"buffer_size": 4725,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								3117,
+								3125
 							]
 						],
 						"settings":
@@ -308,25 +367,27 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 780.0,
+						"translation.y": 553.0,
 						"zoom_level": 1.0
 					},
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
 					"buffer": 2,
 					"file": "code/agency.js",
+					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 20889,
+						"buffer_size": 28870,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								15517,
-								15517
+								19117,
+								19117
 							]
 						],
 						"settings":
@@ -335,14 +396,16 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 8769.0,
+						"translation.y": 10284.0,
 						"zoom_level": 1.0
 					},
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
 					"buffer": 3,
 					"file": "code/agencyIntro.html",
+					"semi_transient": false,
 					"settings":
 					{
 						"buffer_size": 2672,
@@ -362,9 +425,10 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 180.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
+					"stack_index": 3,
 					"type": "text"
 				}
 			]
@@ -401,6 +465,12 @@
 		]
 	},
 	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "agency_project.sublime-project",
 	"replace":
 	{
 		"height": 0.0
@@ -409,6 +479,7 @@
 	"select_file":
 	{
 		"height": 0.0,
+		"last_filter": "",
 		"selected_items":
 		[
 		],
@@ -417,15 +488,32 @@
 	"select_project":
 	{
 		"height": 0.0,
+		"last_filter": "",
 		"selected_items":
 		[
 		],
 		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
 	},
 	"show_minimap": true,
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
 	"side_bar_width": 150.0,
-	"status_bar_visible": true
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
 }
