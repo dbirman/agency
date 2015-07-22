@@ -288,8 +288,6 @@ var curPathClose = null;
 var curPathSeg = -1;
 // game parameters
 var gAccel = 0.000025, fricVal = 0.00001, fricPerc = 0.0005, jitterStr = 10, randSwitch = 1000;
-var params = {g:gAccel,fric:fricVal,fricP:fricPerc,jitter:jitterStr,randS:randSwitch};
-allData['params'] = params;
 // goal settings
 var closeGoal = {
 	x: 0,
@@ -362,6 +360,10 @@ var firstIbTrial = 51;
 chooseGoalType = randomElement([true,false]);
 forcePathType = randomElement([true,false]);
 automoveType = randomElement([true,false]);
+
+
+var params = {g:gAccel,fric:fricVal,fricP:fricPerc,jitter:jitterStr,randS:randSwitch,chooseGoal:chooseGoalType,forcePath:forcePathType,autoMove:automoveType};
+allData['params'] = params;
 
 // var gList = [	false	],
 // 	fList = [	true 	],
