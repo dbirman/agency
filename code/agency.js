@@ -353,8 +353,8 @@ createPath = function(sX, sY, eX, eY, horiz) {
 // var cgList= [true, true, true, true , true],
 // 	fpList = [true, false, false, false ,true],
 // 	amList = [true, true, false, false ,true];
-	ibList = [false, false, false, false, false, false, false, false, false, false, true, true, true, true, true];
-var firstIbTrial = 11;
+var	ibList = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true];
+var firstIbTrial = 51;
 
 // var ibList = [true, true];
 // var firstIbTrial = 1;
@@ -417,6 +417,11 @@ var experiment = {
 				forcePath = forcePathType;
 				autoMove = automoveType;
 				automoving = false;
+				curSec = 0;
+				// automove form the beginning if forcepath, no choosegoal, and automove
+				if (!chooseGoal && forcePath && autoMove) {
+					automoving = true;
+				}
 				// reset tracking
 				xPos = []; yPos = []; flippedTime = [];
 				// instructions, start location
