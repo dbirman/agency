@@ -55,16 +55,8 @@
 			"file": "code/agency.js",
 			"settings":
 			{
-				"buffer_size": 28870,
+				"buffer_size": 29420,
 				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "code/agencyIntro.html",
-			"settings":
-			{
-				"buffer_size": 2672,
-				"line_ending": "Windows"
 			}
 		}
 	],
@@ -100,6 +92,7 @@
 	},
 	"file_history":
 	[
+		"/Users/dan/proj/agency/code/agencyIntro.html",
 		"/C/Users/Dan/proj/web/index.html",
 		"/C/Users/Dan/proj/web/index.css",
 		"/C/Users/Dan/proj/web/index.js",
@@ -174,6 +167,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"automoving = ",
 			"forcePath",
 			"createPAth",
 			"good try",
@@ -367,7 +361,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 553.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
@@ -379,15 +373,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 28870,
+						"buffer_size": 29420,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								19117,
-								19117
+								8481,
+								8481
 							]
 						],
 						"settings":
@@ -396,39 +390,10 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 10284.0,
+						"translation.y": 4704.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "code/agencyIntro.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2672,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1751,
-								1751
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/HTML/HTML.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
 					"type": "text"
 				}
 			]
