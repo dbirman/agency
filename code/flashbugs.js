@@ -47,21 +47,23 @@ function randomElement(array) {
 function parseColor(color) {
 	switch (color) {
 		case 'red':
-			return "#FF0000";
+			return "#660000";
 		case 'green':
-			return "#00FF00";
+			return "#006600";
 		case 'blue':
-			return "#0000FF";
+			return "#000066";
 		case 'yellow':
 			return "#FFFF00";
 		case 'teal':
-			return "#00FFFF";
+			return "#008080";
 		case 'purple':
 			return "#FF00FF";
 		case 'black':
 			return "#000000";
 		case 'white':
 			return "#FFFFFF";
+		case 'orange':
+			return "#FF8106";
 	}
 }
 function now() {
@@ -79,7 +81,7 @@ var texts = ['100ms','250ms','500ms','1000ms'];
 var actTime = 4000;
 var acting = 0;
 var bugs = [0,0,0,0];
-var onColor = 'red';
+var onColor = 'orange';
 var offColor = 'teal';
 
 function drawBugs() {
@@ -111,6 +113,7 @@ function drawBugs() {
 		ctx.fillStyle = parseColor('black');
 		ctx.fillText(texts[i],cen2canx(posX[i]),cen2cany(100));
 	}
+	ctx.fillText("Please study this carefully: It is important for the experiment.",cen2canx(-300),cen2cany(-250));
 }
 
 started = now();

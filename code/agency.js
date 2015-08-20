@@ -240,9 +240,19 @@ document.onkeyup = function(event) {
 function onLoadedAll() {
   showSlide("demographics");
 }
+var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+    // Opera 8.0+ (UA detection to detect Blink/v8-powered Opera)
+var isFirefox = typeof InstallTrigger !== 'undefined';   // Firefox 1.0+
+var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+    // At least Safari 3+: "[object HTMLElementConstructor]"
+var isChrome = !!window.chrome && !isOpera;              // Chrome 1+
+var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
 if (fingerprint.screenHeight <= 700) {
+
 	showSlide("screensmall");
+} else if (isIE || isSafari || isOpera) {
+	showSlide("badbrowser");
 } else {
 	curHeight = fingerprint.screenHeight;
 	if (curHeight > 1000) {
@@ -280,7 +290,7 @@ var gravity = false, friction = false, jitter = false, randControl = false, flip
 // agency manipulation vars
 var chooseGoal = false, forcePath = false, autoMove = false;
 // trial type
-var ibTrial = false, ibInterval = []; ibLength = 7000; ibColors = [];
+var ibTrial = false, ibInterval = []; ibLength = 10000; ibColors = [];
 //
 var startPos;
 // Path tracking (for forcePath)
@@ -351,11 +361,13 @@ createPath = function(sX, sY, eX, eY, horiz) {
 // var cgList= [true, true, true, true , true],
 // 	fpList = [true, false, false, false ,true],
 // 	amList = [true, true, false, false ,true];
-var	ibList = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true];
-var firstIbTrial = 51;
+// var	ibList = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true];
+// var firstIbTrial = 51;
+// var ibTTList = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1];
 
-// var ibList = [true, true];
-// var firstIbTrial = 1;
+var ibList = [false, false, false, false, false, true, true, true, true, true, true];
+var ibTTList = [0,0,0,0,0,2,2,2,1,1,1,1];
+var firstIbTrial = 6;
 
 chooseGoalType = randomElement([true,false]);
 forcePathType = randomElement([true,false]);
@@ -374,8 +386,16 @@ allData['params'] = params;
 // 	fpList = [true],
 // 	vaList = [true ];
 // 	ibList = [ true];
+var ibTrialType = -1;
+var ibKeys = ['Up','Down','Left','Right'];
+var ibKey = '';
 
+var flashbugOkay = 0;
 var experiment = {
+
+	okay: function() {
+		flashbugOkay = 1;
+	},
 
 	end: function() {
 		watchingFull = false;
@@ -398,13 +418,21 @@ var experiment = {
 		if (curTrial <= ibList.length) {
 			ibTrial = ibList[curTrial-1];
 			if (ibTrial) {
-				ibStart = randomElement(Array.range(250,5000,50));
-				flipOne = randomElement(Array.range(0,750,50)); // length of interval to estimate
-				flipTwo = randomElement(Array.range(250,1000,50));
-				ibInterval = [ibStart, ibStart+flipOne, ibStart+flipOne+flipTwo];
+				ibTrialType = ibTTList[curTrial];
+				ibFinished = 0;
+				ibPressed = 0;
+				if (ibTrialType==1) {
+					//intentional
+					ibStart = -1;
+				} else {
+					//unintentional
+					ibStart = randomElement(Array.range(250,5000,50));
+					ibKey = randomElement(ibKeys);
+				}
+				flip = randomElement(Array.range(50,1500,50)); // length of interval to estimate
 				ibColorList = ['red','yellow','green','blue','purple','teal','black'];
 				shuff = shuffleArray(ibColorList);
-				ibColors = [shuff[0],shuff[1],shuff[2]];
+				ibColors = [shuff[0],shuff[1]];
 				document.getElementById('timebox').value="";
 			} else {
 				// regular trial (note indexed from 0->)
@@ -456,11 +484,18 @@ var experiment = {
 		if (ibTrial) {
 			if (curTrial==firstIbTrial) {$("#inst_warning").show();} else {$("#inst_warning").hide();}
 			$("#inst").hide();
-			$("#inst_reaper").show();
+			if (ibTrialType==1) {
+				$("#inst_reaperINT").show();
+				$("#inst_reaperUNINT").hide();
+			} else {
+				$("#inst_reaperINT").hide();
+				$("#inst_reaperUNINT").show();
+			}
 		} else {
 			$("#inst_warning").hide();
 			$("#inst").show();
-			$("#inst_reaper").hide();
+			$("#inst_reaperINT").hide();
+			$("#inst_reaperUNINT").hide();
 		}
 	},
 
@@ -530,8 +565,12 @@ var experiment = {
 	},
 
 	run: function() {
-		launchFullScreen(document.documentElement);
-		experiment.addFullscreenEvents_setupNext();
+		if (!flashbugOkay) {
+			alert("You didn't read the instructions. Please read them before continuing");
+		} else {
+			launchFullScreen(document.documentElement);
+			experiment.addFullscreenEvents_setupNext();
+		}
 	},
 
 	runFromDead: function() {
@@ -568,8 +607,9 @@ function drawHelper() {
 	flippedTime.push(time-started);
 	// Stop conditions
 	if (ibTrial) {
-		if ((time-started) > ibLength) {
+		if (ibFinished || ((time-started) > ibLength)) {
 			window.cancelAnimationFrame(frameID);
+			ibFinished = 0;
 			trial.ib_getresp();
 			return;
 		}
@@ -586,6 +626,7 @@ function drawHelper() {
 	if (ibTrial) {
 		// deal with intentional binding trials
 		// do nothing... everything happens in render
+		checkKeys();
 	} else {
 		// regular trials
 
@@ -770,6 +811,34 @@ function unique(value, index, self) {
     return self.indexOf(value) === index;
 }
 
+function checkKeys() {
+	if (!ibPressed) {
+		if (ibTrialType==1) {
+			// intentional, any key is okay
+			if (k_l || k_u || k_r || k_d) {
+				ibPressed = 1;
+				ibStart = elapsed;
+			}
+		} else {
+			// only ibKey is okay
+			switch (ibKey) {
+				case 'Up':
+					if (k_u) {ibPressed=1;ibStart = elapsed;}
+					break;
+				case 'Down':
+					if (k_d) {ibPressed=1;ibStart = elapsed;}
+					break;
+				case 'Left':
+					if (k_l) {ibPressed=1;ibStart = elapsed;}
+					break;
+				case 'Right':
+					if (k_r) {ibPressed=1;ibStart = elapsed;}
+					break;
+			}
+		}
+	}
+}
+
 function checkMove(elapsedTime,mult) {
 	if (randControl) {
 		if ((now() - lastRandSwitch) > randSwitch) {
@@ -845,17 +914,36 @@ function render() {
 	}
 }
 
+var ibPressed = 0;
+var ibFinished = 0;
 function renderFlash() {
 	elapsed = now() - started;
-	if (elapsed < ibInterval[0]) {
-		// We are at the start, color = red
+	if (!ibPressed) {
+		// We are at the start, color = first 
+		ctx.font="30px Arial";
+		ctx.fillStyle = parseColor('black');
+		if (ibTrialType==1) {
+			// display text to tell the person that this is an intentional trial
+			ctx.fillText("Press any Arrow Key",cen2canx(-50),cen2cany(-50))
+		} else {
+			// unintentinoal trial
+			if (elapsed >= ibStart) {
+				ctx.fillText("Press " + ibKey,cen2canx(-50),cen2cany(-50))
+			}
+			if (elapsed >= (ibStart + 750)) {
+				ibFinished = 1;
+			}
+		}
 		cColor = ibColors[0]
-	} else if (elapsed < ibInterval[1]) {
-		// We are in the color change part, color = green
+	} else if (elapsed < (ibStart + flip)) {
+		// We are in the color change part, color = second
 		cColor = ibColors[1];
+	} else if (elapsed < (ibStart + flip + 1000)) {
+		// trial end, color = first color
+		cColor = ibColors[0];
 	} else {
-		// trial end, color = red
-		cColor = ibColors[2];
+		cColor = ibColors[0];
+		ibFinished = 1;
 	}
 	drawCircle(0,0,cColor);
 }
@@ -1036,10 +1124,10 @@ var trial  = {
 		
 			ibData = {};
 
-			ibData['intervals'] = ibInterval;
-			ibData['interval'] = ibInterval[1]-ibInterval[0];
+			ibData['interval'] = flip;
 			ibData['intervalEst'] = intervalEst;
 			ibData['ibColors'] = ibColors;
+			ibData['ibTrialType'] = ibTrialType;
 
 			allData['ibData'].push(ibData);
 		} else {
@@ -1118,8 +1206,24 @@ var trial  = {
 	ib_getresp: function() {
 		$(document.body).css("cursor","auto");
 		showSlide("ib_response");
-		$("resp-text").show();
-		$("timebox").show();
+		if (!ibPressed) {
+			$("#resp-text").hide();
+			$("#timebox").hide();
+			$("#resp-text-fail").show();
+			$("#failbutt").show();
+			$("#succbutt").hide();
+		} else {
+			$("#resp-text").show();
+			$("#timebox").show();
+			$("#resp-text-fail").hide();
+			$("#failbutt").hide();
+			$("#succbutt").show();
+		}
+	},
+
+	ib_failresp: function() {
+		intervalEst = -1;
+		experiment.setupNext();
 	},
 
 	ib_resp: function() {

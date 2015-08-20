@@ -1,0 +1,29 @@
+---
+title: "agency_analysis"
+output: html_document
+---
+
+```{r}
+library(jsonlite)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+parseData = function(file) {
+  data = fromJSON(file)
+  
+  trialData = data$answers$data$trialData
+  ibData = data$answers$data$ibData
+}
+```
+
+```{r}
+file = '~/proj/agency/sandbox-results/351SEKWQS1ZUN23108F0RA2MFSWDMP.json'
+data = fromJSON(file)
+
+trialData = data$answers$data$trialData
+ibData = data$answers$data$ibData
+
+```
+

@@ -40,6 +40,7 @@
 	<div class="slide multi-parent" id="gofullscreen">
 		<div class="centerbox">
 			<img src="stim/stanford.png" alt="Stanford University">
+			<p>Please take a look at this website and study the 'flash' speeds <a href="flashbugs.html" onclick="experiment.okay();" target="_blank">here</a></p>
 			<p>Please close background programs at this time.</p>
 			<button type="button" onclick="this.blur(); experiment.run()">No Background Programs are Open: I'm Ready!</button>
 		</div>
@@ -68,8 +69,9 @@
 	<div class="slide multi-parent" id="trial_instructions">
 		<div class="centerbox">
 			<p class="bolded" id="inst_warning">STOP! THE INSTRUCTIONS MAY HAVE CHANGED: PLEASE READ CAREFULLY!!</p>
-			<p class='block-text' id="inst_reaper">On the next trial, estimate how long the time interval between the two color changes is. To help you estimate time intervals, look at this website first: <a href="flashbugs.html" target="_blank">here</a></p>
-			<p class="block-text" id="inst">On the next trial, use the arrow keys to move the red box onto the blue box. Do your best to succeed, your time is limited.</p>
+			<p class='block-text' id="inst_reaperINT">On the next trial you will see a colored circle. Whenever you feel like it press one of the arrow keys. This will cause the color to change. After a brief delay the color will change back. Estimate the length of the color change.</p>
+			<p class='block-text' id="inst_reaperUNINT">On the next trial you will see a colored circle. After a delay you will be instructed to press one of the arrow keys (up, down, left, or right). This will cause the color to change. After a brief delay the color will change back. Estimate the length of the color change.</p>
+			<p class="block-text" id="inst">On the next trial, use the arrow keys to move the red box onto the blue box. The game may act in unexpected ways! As long as the trials continue the game is working. Do your best to succeed, your time is limited.</p>
 			<button type="button" onclick="this.blur(); experiment.ready()">I'm Ready</button>
 		</div>
 
@@ -93,9 +95,11 @@
 	<!-- Response page (can also require user input) -->
 	<div class="slide multi-parent" id="ib_response">
 		<div class="centerbox">
-			<p class="block-text" id="resp-text">How long was the middle color visible? (In milliseconds)</p>
-			Interval (ms): <input type=number id="timebox"><br>
-			<button type="button" onclick="this.blur(); trial.ib_resp()">Continue</button>
+			<p class="block-text" id="resp-text-fail">You did not press quickly enough. Please try again. You will not be able to complete the task if you don't press.</p>
+			<p class="block-text" id="resp-text">How long was the middle color visible? (In milliseconds)<br>Interval (ms): </p>
+			<input type=number id="timebox"><br>
+			<button id="succbutt" type="button" onclick="this.blur(); trial.ib_resp()">Continue</button>
+			<button id="failbutt" type="button" onclick="this.blur(); trial.ib_failresp()">Continue</button>
 		</div>
 
 	</div>
@@ -125,6 +129,13 @@
 <div class="slide multi-parent block-text" id="screensmall">
 	<div class="centerbox">
 		We're really sorry but the stimulus in this HIT needs to be displayed on a larger screen. If you have an external display you can connect that and re-launch the page from MTurk, or run this HIT on a different computer. Thanks!
+	</div>
+</div>
+
+<!-- This is just a warning page that kicks people out if their screen is too small -->
+<div class="slide multi-parent block-text" id="screensmall">
+	<div class="centerbox">
+		We're really sorry but the stimulus in this HIT needs to be displayed on Chrome or Firefox. If you have a different browser you can connect that and re-launch the page from. Thanks!
 	</div>
 </div>
 <script src="agency.js"></script>
