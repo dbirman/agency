@@ -609,6 +609,7 @@ function drawHelper() {
 	if (ibTrial) {
 		if (ibFinished || ((time-started) > ibLength)) {
 			window.cancelAnimationFrame(frameID);
+			ctx.clearRect(0,0,canvas.width,canvas.height);
 			ibFinished = 0;
 			trial.ib_getresp();
 			return;
@@ -636,6 +637,7 @@ function drawHelper() {
 		// check if we made it to the goal state
 		if (checkGoal()) {
 			window.cancelAnimationFrame(frameID);
+			ctx.clearRect(0,0,canvas.width,canvas.height);
 			myColor = 'green';
 			render();
 			setTimeout(function() {trial.resp(true);},1000);
@@ -924,13 +926,13 @@ function renderFlash() {
 		ctx.fillStyle = parseColor('black');
 		if (ibTrialType==1) {
 			// display text to tell the person that this is an intentional trial
-			ctx.fillText("Press any Arrow Key",cen2canx(-50),cen2cany(-50))
+			ctx.fillText("Press any Arrow Key",cen2canx(-100),cen2cany(-50))
 		} else {
 			// unintentinoal trial
 			if (elapsed >= ibStart) {
 				ctx.fillText("Press " + ibKey,cen2canx(-50),cen2cany(-50))
 			}
-			if (elapsed >= (ibStart + 750)) {
+			if (elapsed >= (ibStart + 1000)) {
 				ibFinished = 1;
 			}
 		}
