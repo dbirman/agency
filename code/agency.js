@@ -356,18 +356,35 @@ createPath = function(sX, sY, eX, eY, horiz) {
 	return([pathX, pathY, pathH]);
 };
 
+function repmat(array,reps) {
+	out = [];
+	for (i=0;i<reps;i++) {
+		out = out.concat(array);
+	}
+	return(out);
+}
+
 // trial by trial settings (just for debugging)
 //           	1 		2 		3 		4 		5
 // var cgList= [true, true, true, true , true],
 // 	fpList = [true, false, false, false ,true],
 // 	amList = [true, true, false, false ,true];
-// var	ibList = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true];
-// var firstIbTrial = 51;
-// var ibTTList = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1];
+var ibList = repmat([false],50);
+ibList = ibList.concat(repmat([true],40));
+var firstIbTrial = 51;
+var secondIbTrial = 71;
+var ibTTList = repmat([0],50);
+if (randomElement([true,false])) {
+	ibTTList = ibTTList.concat(repmat([2],20));
+	ibTTList = ibTTList.concat(repmat([1],20));
+} else {
+	ibTTList = ibTTList.concat(repmat([1],20));
+	ibTTList = ibTTList.concat(repmat([2],20));
+}
 
-var ibList = [false, false, false, false, false, true, true, true, true, true, true];
-var ibTTList = [0,0,0,0,0,2,2,2,1,1,1,1];
-var firstIbTrial = 6;
+// var ibList = [false, false, false, false, false, true, true, true, true, true, true];
+// var ibTTList = [0,0,0,0,0,2,2,2,1,1,1,1];
+// var firstIbTrial = 6;
 
 chooseGoalType = randomElement([true,false]);
 forcePathType = randomElement([true,false]);
@@ -482,7 +499,7 @@ var experiment = {
 	showInstructions: function() {
 		showSlide("trial_instructions");
 		if (ibTrial) {
-			if (curTrial==firstIbTrial) {$("#inst_warning").show();} else {$("#inst_warning").hide();}
+			if (curTrial==firstIbTrial || curTrial=secondIbTrial) {$("#inst_warning").show();} else {$("#inst_warning").hide();}
 			$("#inst").hide();
 			if (ibTrialType==1) {
 				$("#inst_reaperINT").show();
