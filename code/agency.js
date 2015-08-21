@@ -1130,6 +1130,7 @@ var trial  = {
 			ibData['intervalEst'] = intervalEst;
 			ibData['ibColors'] = ibColors;
 			ibData['ibTrialType'] = ibTrialType;
+			ibData['trial'] = curTrial;
 
 			allData['ibData'].push(ibData);
 		} else {
@@ -1153,6 +1154,7 @@ var trial  = {
 			trialData['autoMove'] = autoMove;
 
 			trialData['maxTime'] = maxTime;
+			trialData['trial'] = curTrial;
 
 			allData['trialData'].push(trialData);
 		}
