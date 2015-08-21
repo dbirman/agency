@@ -1117,7 +1117,7 @@ function setupStartPos() {
 	myY = 0;
 }
 
-var intervalEst = -100;
+var intervalEst = -1000;
 
 var trial  = {
 
@@ -1224,7 +1224,7 @@ var trial  = {
 	},
 
 	ib_failresp: function() {
-		intervalEst = -1;
+		intervalEst = -1000;
 		experiment.setupNext();
 	},
 
@@ -1236,6 +1236,10 @@ var trial  = {
 		}
 		//age info
 		intervalEst = document.getElementById('timebox').value;
+		if (intervalEst==null || intervalEst<=0) {
+			alert("Please enter the elapsed time in milliseconds. If you aren't sure, make a rough guess");
+			return;
+		}
 		experiment.setupNext();
 	}
 };
