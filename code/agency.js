@@ -369,11 +369,11 @@ function repmat(array,reps) {
 // var cgList= [true, true, true, true , true],
 // 	fpList = [true, false, false, false ,true],
 // 	amList = [true, true, false, false ,true];
-var ibList = repmat([false],50);
+var ibList = repmat([false],25);
 ibList = ibList.concat(repmat([true],40));
-var firstIbTrial = 51;
-var secondIbTrial = 71;
-var ibTTList = repmat([0],50);
+var firstIbTrial = 26;
+var secondIbTrial = 46;
+var ibTTList = repmat([0],2);
 if (randomElement([true,false])) {
 	ibTTList = ibTTList.concat(repmat([2],20));
 	ibTTList = ibTTList.concat(repmat([1],20));
@@ -598,7 +598,7 @@ var experiment = {
 	}
 };
 
-var maxTime = 7500;
+var maxTime = 6000;
 
 // tracking variables
 var frameID, started, flippedTime = [], xPos = [], yPos = [];
@@ -943,11 +943,11 @@ function renderFlash() {
 		ctx.fillStyle = parseColor('black');
 		if (ibTrialType==1) {
 			// display text to tell the person that this is an intentional trial
-			ctx.fillText("Press any Arrow Key",cen2canx(-100),cen2cany(-50))
+			ctx.fillText("Press any Arrow Key",cen2canx(-125),cen2cany(-75))
 		} else {
 			// unintentinoal trial
 			if (elapsed >= ibStart) {
-				ctx.fillText("Press " + ibKey,cen2canx(-50),cen2cany(-50))
+				ctx.fillText("Press " + ibKey,cen2canx(-65),cen2cany(-75))
 			}
 			if (elapsed >= (ibStart + 1000)) {
 				ibFinished = 1;
@@ -1213,7 +1213,7 @@ var trial  = {
 		$(document.body).css("cursor","auto");
 		showSlide("response");
 		if (success) {
-			maxTime -= 333;
+			maxTime -= 500;
 			$("#resp-success").show();
 			$("#resp-fail").hide();
 		} else {
