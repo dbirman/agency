@@ -69,8 +69,8 @@
 	<div class="slide multi-parent" id="trial_instructions">
 		<div class="centerbox">
 			<p class="bolded" id="inst_warning">STOP! THE INSTRUCTIONS MAY HAVE CHANGED: PLEASE READ CAREFULLY!!</p>
-			<p class='block-text' id="inst_reaperINT">On the next trial you will see a colored circle. Whenever you feel like it press one of the arrow keys. This will cause the color to change. After a brief delay the color will change back. Estimate the length of the color change.</p>
-			<p class='block-text' id="inst_reaperUNINT">On the next trial you will see a colored circle. After a delay you will be instructed to press one of the arrow keys (up, down, left, or right). This will cause the color to change. After a brief delay the color will change back. Estimate the length of the color change.</p>
+			<p class='block-text' id="inst_reaperINT">On the next trial you will see a colored circle. Whenever you feel like it press one of the arrow keys. After a brief delay the color will change. Estimate the time between your button press and the color change.</p>
+			<p class='block-text' id="inst_reaperUNINT">On the next trial you will see a colored circle. After a delay you will be instructed to press one of the arrow keys (up, down, left, or right). After a brief delay the color will change. Estimate the time between your button press and the color change.</p>
 			<p class="block-text" id="inst">On the next trial, use the arrow keys to move the red box onto the blue box. The game may act in unexpected ways! As long as the trials continue the game is working. Do your best to succeed, your time is limited.</p>
 			<button type="button" onclick="this.blur(); experiment.ready()">I'm Ready</button>
 		</div>
@@ -96,7 +96,7 @@
 	<div class="slide multi-parent" id="ib_response">
 		<div class="centerbox">
 			<p class="block-text" id="resp-text-fail">You did not press quickly enough. Please try again. You will not be able to complete the task if you don't press.</p>
-			<p class="block-text" id="resp-text">How long was the middle color visible? (In milliseconds)<br>Interval (ms): </p>
+			<p class="block-text" id="resp-text">How long was the time between your button press and the color change? (In milliseconds)<br>Interval (ms): </p>
 			<input type=number id="timebox"><br>
 			<button id="succbutt" type="button" onclick="this.blur(); trial.ib_resp()">Continue</button>
 			<button id="failbutt" type="button" onclick="this.blur(); trial.ib_failresp()">Continue</button>

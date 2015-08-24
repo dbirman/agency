@@ -499,7 +499,7 @@ var experiment = {
 	showInstructions: function() {
 		showSlide("trial_instructions");
 		if (ibTrial) {
-			if (curTrial==firstIbTrial || curTrial=secondIbTrial) {$("#inst_warning").show();} else {$("#inst_warning").hide();}
+			if (curTrial==firstIbTrial || curTrial==secondIbTrial) {$("#inst_warning").show();} else {$("#inst_warning").hide();}
 			$("#inst").hide();
 			if (ibTrialType==1) {
 				$("#inst_reaperINT").show();
@@ -956,12 +956,12 @@ function renderFlash() {
 		cColor = ibColors[0]
 	} else if (elapsed < (ibStart + flip)) {
 		// We are in the color change part, color = second
-		cColor = ibColors[1];
+		cColor = ibColors[0];
 	} else if (elapsed < (ibStart + flip + 1000)) {
 		// trial end, color = first color
-		cColor = ibColors[0];
+		cColor = ibColors[1];
 	} else {
-		cColor = ibColors[0];
+		cColor = ibColors[1];
 		ibFinished = 1;
 	}
 	drawCircle(0,0,cColor);
