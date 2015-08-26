@@ -373,7 +373,7 @@ var ibList = repmat([false],25);
 ibList = ibList.concat(repmat([true],40));
 var firstIbTrial = 26;
 var secondIbTrial = 46;
-var ibTTList = repmat([0],2);
+var ibTTList = [];
 if (randomElement([true,false])) {
 	ibTTList = ibTTList.concat(repmat([2],20));
 	ibTTList = ibTTList.concat(repmat([1],20));
