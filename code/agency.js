@@ -407,6 +407,8 @@ var ibTrialType = -1;
 var ibKeys = ['Up','Down','Left','Right'];
 var ibKey = '';
 
+var ibTrialc = 0;
+
 var flashbugOkay = 0;
 var experiment = {
 
@@ -435,7 +437,8 @@ var experiment = {
 		if (curTrial <= ibList.length) {
 			ibTrial = ibList[curTrial-1];
 			if (ibTrial) {
-				ibTrialType = ibTTList[curTrial];
+				ibTrialType = ibTTList[ibTrialc];
+				ibTrialc++;
 				ibFinished = 0;
 				ibPressed = 0;
 				if (ibTrialType==1) {
@@ -1147,7 +1150,7 @@ var trial  = {
 			ibData['intervalEst'] = intervalEst;
 			ibData['ibColors'] = ibColors;
 			ibData['ibTrialType'] = ibTrialType;
-			ibData['trial'] = curTrial;
+			ibData['trial'] = ibTrialc;
 
 			allData['ibData'].push(ibData);
 		} else {
