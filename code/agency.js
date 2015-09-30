@@ -330,12 +330,14 @@ createPath = function(sX, sY, eX, eY, horiz) {
 	// the final end coordinates. We choose whether to start horizontally or
 	// vertically randomly, then break the path up randomly for the other 
 	// missing piece.
-	pathX = [sX];
-	pathY = [sY];
+	var pathX = [sX];
+	var pathY = [sY];
 	if (horiz) {
 		// start horizontal
-		dist = eX - sX; // total distance to travel
-		breakPoint = randomElement(Array.range(rectSize,dist-rectSize,1));
+		var dist = eX - sX; // total distance to travel
+		var dir = dist > 0 ? 1 : -1;
+		dist = Math.abs(dist);
+		var breakPoint = dir*randomElement(Array.range(rectSize*2,dist-rectSize*2,1));
 		pathX.push(sX+breakPoint);
 		pathX.push(sX+breakPoint);
 		pathY.push(sY);
@@ -343,8 +345,10 @@ createPath = function(sX, sY, eX, eY, horiz) {
 		pathH = [true, false, true];
 	} else {
 		// start vertical
-		dist = eY - sY; // total distance to travel
-		breakPoint = randomElement(Array.range(rectSize,dist-rectSize,1));
+		var dist = eY - sY; // total distance to travel
+		var dir = dist > 0 ? 1 : -1;
+		dist = Math.abs(dist);
+		var breakPoint = dir*randomElement(Array.range(rectSize*2,dist-rectSize*2,1));
 		pathY.push(sY+breakPoint);
 		pathY.push(sY+breakPoint);
 		pathX.push(sX);
@@ -1034,55 +1038,55 @@ function drawPath(pathX,pathY,pathH,color) {
 	ctx.strokeStyle = parseColor(color);
 	ctx.lineWidth = "2";
 	// First figure out what quadrant we are going into
-	quadrant=pathX[3]>pathX[0]?pathY[3]<pathY[0]?1:2:pathY[3]<pathY[0]?4:3;
+	var quadrant=pathX[3]>pathX[0]?pathY[3]<pathY[0]?1:2:pathY[3]<pathY[0]?4:3;
 
-	inv = [-1,-1,-1,-1];
-	modX1 = [0,-rectSize,-rectSize,0];
-	modY1 = [-rectSize,-rectSize,-rectSize,-rectSize];
-	pathX1 = []; pathY1 = []; pathX2 = []; pathY2 = []; modX = []; modY = [];
+	var inv = [-1,-1,-1,-1];
+	var modX1 = [0,-rectSize,-rectSize,0];
+	var modY1 = [-rectSize,-rectSize,-rectSize,-rectSize];
+	var pathX1 = []; pathY1 = []; pathX2 = []; pathY2 = []; modX = []; modY = [];
 	switch (quadrant) {
 		case 1:
 			// now we do different things if we are going vert or horz first
 			if (pathH[0]) {
-				modX = modX1;
-				modY = modY1;
+				var modX = modX1;
+				var modY = modY1;
 			} else {
-				modY = modX1;
-				modX = modY1;			
+				var modY = modX1;
+				var modX = modY1;			
 			}
 			break;
 		case 2:
 			if (pathH[0]) {
-				modX = modX1;
-				modY = arrayMult(modY1,inv);
+				var modX = modX1;
+				var modY = arrayMult(modY1,inv);
 			} else {
-				modY = modX1;
-				modX = arrayMult(modY1,inv);
+				var modY = modX1;
+				var modX = arrayMult(modY1,inv);
 			}
 			break;
 		case 3:
 			if (pathH[0]) {
-				modX = arrayMult(modX1,inv);
-				modY = arrayMult(modY1,inv);
+				var modX = arrayMult(modX1,inv);
+				var modY = arrayMult(modY1,inv);
 			} else {
-				modY = arrayMult(modX1,inv);
-				modX = arrayMult(modY1,inv);
+				var modY = arrayMult(modX1,inv);
+				var modX = arrayMult(modY1,inv);
 			}
 			break;
 		case 4:
 			if (pathH[0]) {
-				modX = arrayMult(modX1,inv);
-				modY = modY1;
+				var modX = arrayMult(modX1,inv);
+				var modY = modY1;
 			} else {
-				modY = arrayMult(modX1,inv);
-				modX = modY1;
+				var modY = arrayMult(modX1,inv);
+				var modX = modY1;
 			}
 			break;
 	}
 	pathX1 = arrayDiff(pathX,modX);
-	pathX2 = arrayDiff(pathX,arrayMult(modX,inv));
-	pathY1 = arrayDiff(pathY,modY);
-	pathY2 = arrayDiff(pathY,arrayMult(modY,inv));
+	 pathX2 = arrayDiff(pathX,arrayMult(modX,inv));
+	 pathY1 = arrayDiff(pathY,modY);
+	 pathY2 = arrayDiff(pathY,arrayMult(modY,inv));
 
 	ctx.beginPath();
 	ctx.moveTo(cen2canx(pathX1[0]),cen2cany(pathY1[0]));
